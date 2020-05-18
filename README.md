@@ -1,5 +1,5 @@
 # Industry Lab -Progetto
 
-Riccardo Cervero
-Marco Savino
-Luca Lazzati
+Riccardo Cervero\
+Marco Savino\
+Luca Lazzati\
