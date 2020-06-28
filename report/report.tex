@@ -147,7 +147,7 @@ Innanzitutto, le grandezze relative al picco e alla media hanno una distribuzion
 \centering
 \begin{tabular}[t]{lccc}
 \toprule
-&Minimo&Media&Massimo\\
+Pressione&Minimo&Media&Massimo\\
 \midrule
 \textbf{Picco (140)}&0.19&1.94&3.45\\
 \textbf{Picco (2300)}&5.38&11.61&14.21\\
@@ -169,7 +169,7 @@ Le rispettive distribuzioni di portata (Figura 6) rivelano andamenti molto meno 
 \centering
 \begin{tabular}[t]{lccc}
 \toprule
-&Minimo&Media&Massimo\\
+Portata&Minimo&Media&Massimo\\
 \midrule
 \textbf{Picco (140)}&30.30&58.96&93.6\\
 \textbf{Picco (2300)}&930.5&1309.6&1422.9\\
@@ -214,8 +214,17 @@ Per quanto riguarda la prima, la distribuzione è fortemente asimmetrica verso v
 \end{figure}
 È importante citare che anche fra la media e il picco della coppia in fase finale (100 \textit{rpm}) esista una forte dipendenza lineare positiva ($\sim$0.83). Bisognerà pertanto valutare questa ulteriore collinearità in fase di stima del modello per la previsione del coefficiente.\\
 Al contrario, queste due variabili non presentano un'elevata dipendenza rispetto i dati di pressione e portata: la correlazione rimane sempre ben al di sotto del 20\%. Lo stesso vale per i valori di temperatura.
+
 \subsection{Target: coefficiente di dispersione}
-Il coefficiente di dispersione, 
+Il coefficiente di dispersione è calcolato con la formula
+$$\alpha=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}$$.
+
+%Distribuzione
+%Correlazione
+%Programma
+%No serie storica
+
+\subsection{\textit{Outliers Detection}}
 %------------------------------------------------
 \section{Sistema di monitoraggio \textit{real-time}}
 %------------------------------------------------
