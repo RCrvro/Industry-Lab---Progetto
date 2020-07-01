@@ -93,7 +93,8 @@
 
 %------------------------------------------------
 \section{Data Preparation}
-Il \textit{database} si compone di 296605 osservazioni, descritte da 33 colonne. Tuttavia, è stato necessario focalizzare l'analisi su quelle che presentavano un certo grado di rilevanza e utilità per l'oggetto di studio. Ciò ha comportato la rimozione, durante una prima fase di \textit{pre-processing}, delle variabili che presentavano le seguenti caratteristiche: si manifestavano come un unico valore costante\footnote{Le costanti rimosse sono: \texttt{"Banco"}, \texttt{"Master"}, \texttt{"Picco coppia zero"}, \texttt{"Picco coppia iniziale"}, \texttt{"Media coppia iniziale"}, \texttt{"Velocità 1"}, \texttt{"Picco pressione velocità 2"}, \texttt{"Media pressione velocita 2"}, \texttt{"Picco portata velocità 2"}, \texttt{"Media portata velocità 2"}.}, mostravano una distribuzione eccessivamente sbilanciata verso una sola classe\footnote{È questo il caso di \texttt{"Velocità 2"}, \texttt{"Esito"} e di conseguenza \texttt{"N. Esito"}, \texttt{"Coppia max ciclo"}, \texttt{"Velocità a regime"}.}, erano ridondanti, poco interessanti o erano già state segnalate tali dai fornitori del \textit{dataset}\footnote{Le colonne inutili sono: \texttt{"Codice da Linea"} - identificativo del pezzo -, \texttt{"Media coppia zero"}, \texttt{'Data'} e \texttt{'Ora'}, poiché i dati sono stati raccolti in un arco temporale non uniforme.}. Infine, è stata rimossa una sola riga, poiché penalizzata dalla mancanza dei valori di pressione.
+Il \textit{database} si compone di 296605 osservazioni, descritte da 33 colonne. Tuttavia, è stato necessario focalizzare l'analisi su quelle che presentavano un certo grado di rilevanza e utilità per l'oggetto di studio. Ciò ha comportato la rimozione, durante una prima fase di \textit{pre-processing}, delle variabili che presentavano le seguenti caratteristiche: si manifestavano come un unico valore costante\footnote{Le costanti rimosse sono: \texttt{"Banco"}, \texttt{"Master"}, \texttt{"Picco coppia zero"}, \texttt{"Picco coppia iniziale"}, \texttt{"Media coppia iniziale"}, \texttt{"Velocità 1"}, \texttt{"Picco pressione velocità 2"}, \texttt{"Media pressione velocita 2"}, \texttt{"Picco portata velocità 2"}, \texttt{"Media portata velocità 2"}.}, mostravano una distribuzione eccessivamente sbilanciata verso una sola classe\footnote{È questo il caso di \texttt{"Velocità 2"}, \texttt{"Esito"} e di conseguenza \texttt{"N. Esito"}, \texttt{"Coppia max ciclo"}, \texttt{"Velocità a regime"}.}, erano ridondanti, poco interessanti o erano già state segnalate tali dai fornitori del \textit{dataset}\footnote{Le colonne inutili sono: \texttt{"Codice da Linea"} - identificativo del pezzo -, \texttt{"Media coppia zero"}, \texttt{'Data'} e \texttt{'Ora'}, poiché i dati sono stati raccolti in un arco temporale non uniforme.}.\\
+Successivamente, è stata rimossa una sola riga, poiché penalizzata dalla mancanza dei valori di pressione. Infine, poiché la differenza di scala era spesso eccessiva per molte colonne numeriche, si è deciso di normalizzare la matrice originale, mappando tutte le variabili non categoriche fra 0 e 1. 
 %------------------------------------------------
 \section{Analisi preliminari}
 Dopo le operazioni di pulizia appena menzionate, si è proceduto ad analizzare in maniera preliminare le colonne rilevanti, per ottenere un primo approfondimento sui descrittori e i rapporti di dipendenza fra gli stessi. 
@@ -202,7 +203,7 @@ Infine, è interessante notare come le colonne relative alla pressione e alla po
     \label{fig:em}
     \caption{Matrice di correlazione, con valori assoluti, fra tutte le variabili di pressione e portata.}
 \end{figure}
-Appare quindi evidente la sistematica dipendenza fra pressione e portata, che, osservando i dati forniti, paiono spesso essere state generate dalla stessa distirbuzione casuale, a prescindere dalla misura scelta e dalla fase impostata. Per questa ragione, in fase di generazione dei modelli di regressione, la matrice del disegno potrebbe essere affetta da un eccessivo problema di multicollinearità, rischiando di divenire singolare o addirittura non invertibile, penalizzando una stima corretta sia dei coefficienti di regressione che degli indici di bontà di adattamento della funzione di regressione. Sarà pertanto necessario rimuovere tali variabili più correlate, oppure adottare strategie utili alla selezione di un modello a più bassa dimensionalità, come, ad esempio, le tipologie \textit{Ridge} e \textit{LASSO}.
+Appare quindi evidente la sistematica dipendenza fra pressione e portata, che, osservando i dati forniti, paiono spesso essere state generate dalla stessa distirbuzione casuale, a prescindere dalla misura scelta e dalla fase impostata. Per questa ragione, in fase di generazione dei modelli di regressione, la matrice del disegno potrebbe essere affetta da un eccessivo problema di multicollinearità, rischiando di divenire quasi-singolare o addirittura non invertibile, penalizzando una stima corretta sia dei coefficienti di regressione che degli indici di bontà di adattamento della funzione di regressione. Sarà pertanto necessario rimuovere tali variabili più correlate, oppure adottare strategie utili alla selezione di un modello a più bassa dimensionalità, come, ad esempio, le tipologie \textit{Ridge} e \textit{LASSO}.
 \subsubsection{Altre variabili}
 Le altre colonne numeriche, filtrate dalla fase di \textit{pre-processing} e ritenute rilevanti ai fini dello studio, sono: media coppia in fase finale (100 \textit{rpm}), picco coppia in fase finale e temperatura di prova del liquido.\\
 Per quanto riguarda la prima, la distribuzione è fortemente asimmetrica verso valori elevati, con una discreta porzione di \textit{outliers}. Il picco della stessa grandezza presenta una coda ancor più lunga (in scala logaritmica in Figura 9). Medesima condizione di elevata asimmetria vale per la temperatura, compresa fra un range di 37.61° e 49.1°.
@@ -217,20 +218,77 @@ Al contrario, queste due variabili non presentano un'elevata dipendenza rispetto
 
 \subsection{Target: coefficiente di dispersione}
 Il coefficiente di dispersione è calcolato con la formula
-$$\alpha=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}$$.
-
-%Distribuzione
-%Correlazione
-%Programma
-%No serie storica
+\begin{equation}\label{eq}
+    \alpha=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}
+\end{equation}
+e i valori sono compresi in un range molto ampio, fra un minimo di $\sim$5.7 e un massimo di $\sim$817, con media e mediana rispettivamente pari a $\sim$27.8 e $\sim$29.43. La distribuzione è sbilanciata verso alti valori, come visibile in Figura 10.
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=100,width=1 \linewidth]{coeff.png}
+    \label{fig:em}
+    \caption{Distribuzione del coefficiente di \textit{leakage} in scala logaritmica e originale.}
+\end{figure}
+In Figura, è possibile notare una certa concentrazione dei \textit{records} in un intervallo di ampiezza ridotta attorno alla mediana. Questa considerazione è appurata dal basso coefficiente di variazione: $\sim$0.26.\\
+Poiché il coefficiente di \textit{leakage} è indice della performance della pompa prodotta, è ragionevole supporre che ad ogni classe GP5, come conseguenza della differenza fra le proprie caratteristiche di progettazione e quelle delle altre categorie, si associ un diverso livello prestazione - quindi un diverso \textit{range} di $\alpha$. Da un'analisi grafica superficiale (Figura 11), questa assunzione appare non scorretta: le distribuzioni del coefficiente, raggruppate per "Programma", appaiono diverse, facendo ipotizzare l'esistenza di una variabilità fra i gruppi potenzialmente interessante per la costruzione di un modello predittivo. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{Programma.png}
+    \label{fig:em}
+    \caption{Distribuzioni del coefficiente $\alpha$ raggruppate per classe GP5 ("Programma").}
+\end{figure}
+Inoltre, è possibile che tale varianza fra le classi GP5 si manifesti non solo fra i livelli di performance, ma anche fra i coefficienti di regressione delle variabili esplicative scelte, ovvero che la selezione di un determinato Programma comporti una relazione significativamente diversa - rispetto agli altri tipi di pompe - fra $\alpha$ e le altre grandezze. Se questa ipotesi venisse verificata, allora si potrebbe dimostrare quanto il contributo delle varie parti coinvolte nel processo - monitorate attraverso la misurazione dei valori registrati in colonna nel database - si modifichi, influenzato dagli specifici fattori contestuali relativi alla diversa progettazione di ogni classe di pompa. In questo modo, sarebbe anche possibile ottimizzare il valore del coefficiente $\alpha$, monitorando i fattori prima citati in maniera differente a seconda del Programma. Pertanto, con lo scopo di analizzare in maniera più approfondita la variabilità della funzione di regressione lineare di $\alpha$ in base al tipo di pompa in produzione, si è scelto di stimare una tipologia di modello misto adatta ai dati influenzati da effetti contestuali: il cosiddetto \textit{multilevel model}. Tale approfondimento è trattato nella Sezione \ref{Mod}.\\
+Oltre alla relazione con "Programma", il coefficiente di dispersione mostra un collinearità molto elevata con molte altre colonne. Tralasciando le distribuzioni da cui $\alpha$ è stato generato (equazione \ref{eq}), le variabili con cui è più fortemente correlato sono relative alla pressione a regime ("Picco pressione velocita a regime" al 75\% e "Media pressione velocita a regime" al 74.6\%) e al picco di portanta durante la stessa fase (74\%). Per questa ragione, esse dovrebbero normalmente essere incluse nel \textit{subset} dei candidati esplicativi per la regressione lineare di $\alpha$, poiché potrebbero contribuire ad una stima accurata. Tuttavia, come si vedrà nella Sezione \ref{Mod}, la \textit{feature selection} sarà un'operazione difficile, a causa della multicollinearità rilevata fra le misurazioni di portata e pressione - in entrambe le fasi - e del conseguente rischio di ottenere una matrice del disegno quasi-singolare o invertibile. Ad esempio, se si volessero includere entrambe le variabili di pressione in fase di regime, la penalizzazione alla correttezza del modello non deriverebbe soltanto dalla loro reciproca collinearità, bensì anche dalla loro dipendenza lineare con le colonne utilizzate per calcolare $\alpha$ vista in precedenza. Poi, la correlazione con "Media coppia finale" appare moderata (16.9\%), e "Picco coppia finale" ha una dipendenza lineare pari a circa il 7\%. È necessario ricordare che anche fra queste due grandeze esiste una collinearità rischiosa, che, nel caso in cui venissero incluse assieme nel modello, non farà altro che distorcere i coefficienti di regressione. Infine, la correlazione rispetto alla temperatura è ridotta: -6.9\%.\\
+Poiché le osservazioni erano corredate da dati temporali relativi alla data - giorno, mese e anno - e all'orario, si è proceduto a verificare la possibilità di estrarre eventuali trend temporali. Tuttavia, le misurazioni appaiono cronologicamente disomogenee su due livelli. Innanzitutto, i \textit{record} nono sono stati forniti con coerenza temporale per quanto riguarda l'anno (Figura 11). 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{anno.png}
+    \label{fig:em}
+    \caption{Frequenza delle misurazioni per anno. I dati non sono stati forniti in maniera omogenea.}
+\end{figure}
+In ogni caso, non è comunque visibile alcuna differenza significativa fra le distribuzioni della performance nei vari anni (Figura 12).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{anno1.png}
+    \label{fig:em}
+    \caption{Distribuzioni del coefficiente $\alpha$ raggruppate per anno.}
+\end{figure}
+Neppure per quanto riguarda il mese, le registrazioni sono omogenee, come visibile in Figura 13.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{mese.png}
+    \label{fig:em}
+    \caption{Frequenza delle misurazioni per mese. I dati non solo non sono stati forniti in maniera omogenea, ma i primi 4 mesi sono addirittura mancanti, e maggio non riporta quasi osservazioni.}
+\end{figure}
+Nonostante dalla collezione dei dati possa sembrare impossibile estrarre una certa periodicità, per i motivi appena spiegati, l'andamento del coefficiente di dispersione è inaspettatamente armonico (Figura 14).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{anni.png}
+    \label{fig:em}
+    \caption{Andamento del coefficiente di dispersione $\alpha$ per anno.}
+\end{figure}
+Tuttavia, è sufficiente eseguire un clustering grafico dei punti in base al programma di appartenenza per dedurre la motivazione di tale apparente periodicità: essa non deriva da un'autocorrelazione temporale fra i valori del coefficiente, bensì dall'ordine con cui è stato scelto di effettuare le misurazioni sui diversi gruppi GP5, che, come si è visto in precedenza, hanno distribuzioni differenti. L'andamento, perciò, appare generato da una sinusoide solamente perché le osservazioni alternano classi di pompa con performance elevate a categorie con un $\alpha$ minore. Quanto detto è evidente in Figura 15.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{Cluster.png}
+    \label{fig:em}
+    \caption{Andamento del coefficiente di dispersione $\alpha$ durante l'anno 2016, clusterizzato in base alla variabile "Programma". Il colore rosso indica la tiplogia di pompa \textit{Daimler} - la più popolosa -, mentre gli altri colori sono associati alle sottocategorie Standard.}
+\end{figure}
 
 \subsection{\textit{Outliers Detection}}
+L'ultima fase di analisi preliminare consiste nell'identificazione degli \textit{outliers}. Grazie ad essa, è possibile, in una fase di ottimizzazione della produzione, ricostruire il trend del processo, individuare le anomalie non segnalate dalla variabile "Esito" ed inferire eventuali fattori in grado di causarle. Innanzitutto, si è proceduto ad estrarre i gli \textit{outliers} univariati all'interno della distribuzione del coefficiente di dispersione $\alpha$. Per farlo, poichè è stato verificato che tale distribuzione non fosse di tipo Normale, è stato applicato il metodo non parametrico della distanza interquartile, segnalando pertanto i punti inferiori a k volte il primo quartile e superiori a k volte il terzo quartile, con $k = 1.5$. È stato appurato che queste anomalie non dipendono da un particolare programma - presenti pertanto sia nel caso della categoria \textit{Daimler} sia Standard -, né si verificano in particolari anni o mesi.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1 \linewidth]{out.png}
+    \label{fig:em}
+    \caption{Identificazione degli outlier univariati all'interno della distribuzione del coefficiente di dispersione.}
+\end{figure}
+Inoltre, si è proceduto ad estrarre \textit{outlier} multivariati grazie all'algoritmo \textit{Local Outlier Factor} (LOF), basato sul calcolo delle deviazioni locali di ogni punto dal proprio vicinato. In questo caso, i valori anomali individuati rappresentano un porzione molto grande del database (75\%) e prescindono, come in precedenza, da particolari condizioni o programmi. Questa elevata quantità può dipendere dall'incidenza che gli specifici fattori contestuali di progettazione prima citati hanno sulle varie distribuzioni, elevando il grado di variabilità nell'andamento globale, così come dall'alternanza di fasi diverse nel processo. Sarebbe pertanto maggiormente utile applicare l'algoritmo di \textit{anomaly detection} separatamente in corrispondenza della cosiddetta velocità 1 (140rpm) e della fase di regime, e su ciascuna classe GP5.
 %------------------------------------------------
 \section{Sistema di monitoraggio \textit{real-time}}
 %------------------------------------------------
 \section{Limite dinamico di portata}
 %----------------------------------------------------------------------------------------
-\section{Modelli di previsione}
+\section{Modelli di previsione}\label{Mod}
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
