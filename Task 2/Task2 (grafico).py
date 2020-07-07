@@ -27,15 +27,13 @@ def limitgraph():
     db = pd.read_csv("/content/benchSTD.csv",header=None,sep="\t")
   fig = go.Figure()
   fig.add_trace(go.Mesh3d(x=db[0],y=db[1],z=db[2],opacity=0.2,color='blue',name="Reg. critica"))
-  fig.update_layout(title=str("Limite di portata ("+str(Tipo_pompa)+")"),autosize=False,width=700,margin=dict(r=20, l=10, b=10, t=10))
+  fig.update_layout(autosize=False,width=700,margin=dict(r=20, l=10, b=10, t=10))
   cl = col(c['z'][0])
   fig.add_trace(go.Scatter3d(x=c.x, y=c.y, z=c.z,mode='markers',marker=dict(color=cl),name="Osservazione"))
   fig.update_layout(scene = dict(
                     xaxis_title='Pressione',
                     yaxis_title='Coefficiente',
-                    zaxis_title='Portata'))
+                    zaxis_title='Portata'),
+                    title_text=str("Limite di portata ("+str(Tipo_pompa)+")"), title_x=0.5, title_y=0.95)
   clear_output(wait=True)
   fig.show()
-  
-  #Per eseguire
-  limitgraph()
