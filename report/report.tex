@@ -67,7 +67,7 @@
 %	ABSTRACT
 %----------------------------------------------------------------------------------------
 
-\Abstract{}
+\Abstract{L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. Il progetto, dopo un'introduzione tecnica del caso di studio, intende innanzitutto offrire quattro livelli di analisi riguardanti il processo produttivo. Il primo consiste in un'indagine preliminare delle grandezze osservate durante la creazione del pezzo meccanico - categoriche e numeriche -. Verranno mostrate, in particolare, le forti relazioni fra i descrittori relativi alle variabili di pressione e portata. Con lo scopo di estendere lo studio di tali relazioni, verrà dunque presentata un'analisi di correlazione fra tutte le colonne rilevanti presenti all'interno del \textit{database}. Il terzo livello ha implicato un'approfondimento dei complessi legami di correlazione, attraverso la stima di vari modelli di classica regressione lineare, l'utilizzo di tecniche di \textit{shrinkage} - quali \textit{Ridge} e \textit{Lasso} - e modelli misti di tipologia \textit{multilevel}. Infine, l'ultima indagine riguarda i valori anomali, sia univariati che multivariati. Inoltre, il progetto offre una soluzione grafica \textit{real-time} per il monitoraggio delle grandezze del processo produttivo a bassissima latenza e l'individuazione di eventuali \textit{outliers}, e presenta un algoritmo per rilevare eventuali valori scorretti della portata in base al tipo di pompa e alle misurazioni del coefficiente di dispersione e della pressione, oltre a rappresentare la distanza fra le osservazioni e questo limite dinamico nello spazio tridimensionale.} 
 
 %----------------------------------------------------------------------------------------
 
@@ -205,7 +205,7 @@ Infine, è interessante notare come le colonne relative alla pressione e alla po
     \label{fig:em}
     \caption{Matrice di correlazione, con valori assoluti, fra tutte le variabili di pressione e portata.}
 \end{figure}
-Appare quindi evidente la sistematica dipendenza fra pressione e portata, che, osservando i dati forniti, paiono spesso essere state generate dalla stessa distribuzione casuale, a prescindere dalla misura scelta e dalla fase impostata. Per questa ragione, in fase di generazione dei modelli di regressione, la matrice del disegno potrebbe essere affetta da un eccessivo problema di multicollinearità, rischiando di divenire quasi-singolare o addirittura non invertibile, penalizzando una stima corretta sia dei coefficienti di regressione che degli indici di bontà di adattamento della funzione di regressione. Sarà pertanto necessario rimuovere tali variabili più correlate, oppure adottare strategie utili alla selezione di un modello a più bassa dimensionalità, come, ad esempio, le tipologie \textit{Ridge} e \textit{LASSO}.
+Appare quindi evidente la sistematica dipendenza fra pressione e portata, che, osservando i dati forniti, paiono spesso essere state generate dalla stessa distribuzione casuale, a prescindere dalla misura scelta e dalla fase impostata. Per questa ragione, in fase di generazione dei modelli di regressione, la matrice del disegno potrebbe essere affetta da un eccessivo problema di multicollinearità, rischiando di divenire quasi-singolare o addirittura non invertibile, penalizzando una stima corretta sia dei coefficienti di regressione che degli indici di bontà di adattamento della funzione di regressione. Sarà pertanto necessario rimuovere tali variabili più correlate, oppure adottare strategie utili alla selezione di un modello a più bassa dimensionalità, come, ad esempio, le tipologie \textit{Ridge} e \textit{Lasso}.
 \subsubsection{Altre variabili}
 Le altre colonne numeriche, filtrate dalla fase di \textit{pre-processing} e ritenute rilevanti ai fini dello studio, sono: media coppia in fase finale (100 \textit{rpm}), picco coppia in fase finale e temperatura di prova del liquido.\\
 Per quanto riguarda la prima, la distribuzione è fortemente asimmetrica verso valori elevati, con una discreta porzione di \textit{outliers}. Il picco della stessa grandezza presenta una coda ancor più lunga (in scala logaritmica in Figura 9). Medesima condizione di elevata asimmetria vale per la temperatura, compresa fra un range di $37.61^°$ e $49.1^°$.
@@ -301,15 +301,337 @@ Questa operazione è stata simulata attraverso il client del \textit{software} \
 Il secondo elemento consiste in una componente grafica, curata mediante i \textit{tool} di visualizzazione forniti dall'interfaccia \texttt{Dash} di \texttt{Plotly}\footnote{Documentazione ufficiale di \texttt{Dash}: \url{https://plotly.com/dash/}.}. Essa riceve i valori letti dalla \textit{topic} di \texttt{Apache Kafka} e aggiorna in tempo reale due tipologie di visualizzazione per i dati inviati dai sensori: un \textit{BoxPlot} per monitorare la distribuzione totale, e un grafico \textit{LineChart} per l'andamento.\\
 Infine, la terza componente - nominata "\texttt{writer}"\footnote{Il codice del "\texttt{writer}" è disponibile al link: \url{https://github.com/RCrvro/Industry-Lab---Progetto/blob/master/Monitoraggio\%20realtime/writer.py}.} - esegue un programma indipendente, che registra i metadati - \textit{timestamp}, dato numerico e segnalazione di eventuali valori anomali - all'interno di un database locale. Quest'ultimo, dunque, svolgerà la funzione di \textit{logfile} del processo. 
 \subsection{Demo}
-È disponibile una demo del sistema di monitoraggio al link \href{https://youtu.be/R7GCE91WyMc}{\textbf{\texttt{youtu.be/R7GCE91WyMc}}}. 
+È disponibile una demo del sistema di monitoraggio al link \href{https://youtu.be/R7GCE91WyMc}{\textbf{\texttt{youtu.be/R7G}}}. 
 \\
 In questo caso, si è scelto di simulare la visualizzazione di ipotetiche osservazioni relative al coefficiente di dispersione $\alpha$ (in verde) e alla media di portata a 140rpm (in arancione), perché, essendo variabile soggetta a limiti imposti in fase di produzione, appare ragionevole monitorarla in tempo reale.\\
 Nel video, sul lato destro dello schermo, sono visibili quattro pagine del terminale. La prima in alto esegue un \texttt{Producer} per simulare l'invio delle misurazioni del coefficiente $\alpha$ da parte del proprio sensore, tramite scrittura manuale di alcuni valori. La seconda attiva un secondo \texttt{Producer}, per simulare il sensore della variabile di portata. La terza implementa il programma \texttt{writer}: ogni dato ricevuto dal sensore - in questo caso di $\alpha$ - viene scritto, assieme ai metadati, nel \textit{logfile} \texttt{"Coefficiente.csv"} apparso sul bordo destro del monitor dopo l'invio del primo valore. Alla fine del video, il file verrà aperto, per mostrare il risultato delle registrazioni. Inoltre, sempre per quanto concerne il \texttt{writer}, la pagina mostrerà un conteggio dei messaggi ricevuti. Infine, l'ultima finestra in basso inizializza l'applicazione grafica in corrispondenza della porta \texttt{8050} e mantiene connesso il sistema di monitoraggio.\\
 L'applicazione è programmata per la segnalazione di eventuali errori, che possono essere esaminati cliccando l'icona blu nell'angolo inferiore destro della pagina \textit{Web}. 
 %------------------------------------------------
 \section{Limite dinamico di portata}
+Poiché la \textit{performance} della pompa GP5 dipende strettamente dal proprio valore di portata in uscita, è necessario controllare che tale misurazione non scenda al di sotto di una determinata soglia, variabile a seconda della macro-categoria selezionata: \textit{Daimler} o Standard\footnote{I valori corretti di portata in uscita per la pompa \textit{Daimler} sono compresi fra 45.86 e 63.36. Per quanto riguarda la categoria Standard, gli estremi considerati sono 57.36 e 75.36.}. Oltre al tipo di "programma", però, tale grandezza condivide una relazione matematica con le variabili del coefficiente di \textit{leakage} $\alpha$ e della pressione (equazione \ref{eq}). Pertanto, il processo produttivo necessita di un monitoraggio dei valori di portata in uscita rispetto alle colonne menzionate. A tal proposito, oltre ad un algoritmo che calcoli, a partire da $\alpha$ e pressione, la portata in uscita e valuti se tale misurazione rientra nel \textit{range} definito dalla miglior\footnote{La regione ammissibile viene limitata superiormente perché eventuali valori oltre il migliore registrato potrebbero derivare da anomalie del pezzo prodotto.} e peggior osservazione in corrispondenza della categoria GP5, è possibile rappresentare graficamente tale limite dinamico come una regione ammissibile all'interno di uno spazio tridimensionale, e osservare la differenza fra il piano e una data misurazione. In questo modo, è possibile monitorare già graficamente la presenza di eventuali anomalie, e si è in grado di valutare visivamente la distanza dai comportamenti tipici del processo produttivo.\\
+È disponibile una demo dell'algoritmo di rappresentazione grafica del limite dinamico di portata al link \href{https://www.youtube.com/watch?v=cxHw8cPm-Ek}{\textbf{\texttt{youtu.be/cxH}}}: date in input le coordinate di $\alpha$ e pressione, viene generata la regione ammissibile prima descritta (in blu) e indicato il punto relativo all'osservazione. La regione critica si modifica a seconda della categoria di pompa, e il colore del punto varia in base alla correttezza dell'osservazione fornita in input: se essa rientra nel limite indicato per la data classe GP5, il punto è rappresentato in verde (Figura 18), altrimenti in rosso (Figura 19).
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9 \linewidth]{STD.png}
+    \label{fig:em}
+    \caption{Il punto osservato è compreso nella regione ammissibile. Ciò significa che i valori di coefficiente di dispersione, pressione e soprattutto portata - in funzione di essi - sono da considerarsi regolari. Il punto è pertanto colorato in verde.}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9 \linewidth]{DAI.png}
+    \label{fig:em}
+    \caption{Il punto osservato non è compreso nella regione ammissibile. Ciò significa che l'osservazione è anomala, ed è pertanto segnalata in rosso.}
+\end{figure}
 %----------------------------------------------------------------------------------------
 \section{Modelli di previsione}\label{Mod}
+La previsione del coefficiente di perdita $\alpha$ (\textit{leakage coefficient}) è stata effettuata utilizzando tre diverse tecniche di regressione: 
+\begin{enumerate}
+    \item Modello OLS per regressione lineare multipla
+    \item Tecniche di \textit{shrinkage}: regressione \textit{Ridge} e \textit{Lasso}
+    \item Modello misto: regressione \textit{multilevel}
+\end{enumerate}
+\subsection{Modelli OLS}
+La regressione lineare rappresenta un metodo di stima del valore atteso condizionato di una variabile - dipendente (o endogena) -, dati i valori di altre variabili indipendenti (o esogene), assumendo pertanto l'esistenza di una relazione lineare tra le $X$ e
+la variabile target $Y$. La formulazione è rappresentata dalla seguente equazione:
+\begin{equation}\label{eq}
+    Y = \beta_{0} + \beta_{1}x_{1} + \beta_{n}x_{n} + u_{i}
+\end{equation}
+dove:
+\begin{itemize}
+    \item $\beta_{0}$ è l'intercetta della retta di regressione, ovvero il valore atteso di $Y$ quando le altre variabili indipendenti sono pari a zero
+    \item $\beta_{1}$, $\beta_{n}$ sono i coefficienti angolari della retta di regressione, interpretabili come pesi di rilevanza assegnati a ciascuna \textit{feature}
+    \item $u_{i}$ è l'errore statistico.
+\end{itemize}
+Come discusso in precedenza, le variabili di portata e pressione si distribuiscono quasi identicamente, sia per quanto riguarda le diverse fasi - di controllo e a regime -, sia per quanto concerne le due diverse misurazioni di media e picco. Pertanto, si è proceduto inizialmente a stimare alcun modelli per la previsione del coefficiente di \textit{leakage} $\alpha$ mantenendo separate le variabili di portata e di pressione. Inoltre, dato che la collinearità tra tali colonne avrebbe potuto causare una sottostima della significatività delle $X$ e una sovrastima dell'indice di bontà di adattamento $R^2$, si è deciso di includere soltanto le grandezze di pressione e portata che presentavano una correlazione pari o inferiore all'82\%.\\
+La significatività statistica delle variabili verrà estratta dal confronto fra il \textit{p-value}, ($Pr(>|t|)$), e il livello di significatività statistica, prefissato 0.05. Il risultato della regressione è quindi basato sull’ipotesi che i coefficienti di regressione associati alle variabili siano nulli, contrapposta all'ipotesi alternativa, per cui essi non sono uguali a zero ed esiste cioè una relazione tra la $Y$ e il regressore selezionato. Più precisamente, soltanto quando $\text{\textit{p-value}} < 0.05$ i $\beta$ sono significativamente diversi da zero, pertanto rilevanti. Nelle tabelle con cui verranno esposti i risultati di ogni modello OLS, il grado di significatività - che dipende dall'ordine della differenza fra il \textit{p-value} e il limite prefissato - sarà indicato da alcuni asterischi: maggiore il numero degli stessi, da un minimo di zero a un massimo di 3, maggiore la rilevanza della variabile in questione per la previsione della $Y$.\\
+Per migliorare la stima della funzione di regressione e dell'indice $R^2$ per ciascun modello \textit{ordinary least squares}, è stata applicata la tecnica \textit{k-folds cross validation} (con $k=5$): i dati sono suddivisi iterativamente in \textit{training} e \textit{test set}, ristimando e valutando k volte il modello ottenuto, in modo da evitare problemi di sovradattamento e campionamento asimmetrico.\\
+Le prossime sezioni riassumono i risultati ottenuti da ciascun modello.
+\subsubsection{Modello OLS con variabili di portata}
+\textbf{Modello 1}: Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.04440\\ 
+\textbf{Picco Port. (140)}&$<$2e-16 ***&-0.07284\\ 
+\textbf{Media Port. (2300)}&$<$2e-16 ***&-0.18002\\ 
+\textbf{Picco Port. (2300)}&$<$2e-16 ***&0.20332\\ 
+\textbf{Temperatura}&$<$2e-16 ***&-0.00152\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.01893\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Per la previsione del coefficiente di \textit{leakage} sono state utilizzate, oltre alle variabili di portata che presentano una reciproca correlazione inferiore al 82\%, le variabili "Temperatura" e "Media Coppia Finale"\footnote{\label{cf1}Nel modello non vengono mai incluse entrambe le variabili relative alla coppia finale, perchè presentano una correlazione eccessiva e rischiano pertanto di compromettere la correttezza delle stime.}. Tutte le variabili risultano statisticamente significative con grado molto elevato. La variabile più rilevante per la previsione di $\alpha$ si rivela essere \textit{Picco Port. (2300)}, con un coefficiente di regressione pari a $\sim$0.2. Inoltre, è possibile notare una relazione negativa tra la variabile target e le seguenti covariate: picco di portata in fase di controllo (140 rpm), media di portata in fase a regime (2300 rpm) e temperatura. Il coefficiente di determinazione ($R^2$) associato al modello è abbastanza buono, pari a 0.8737.\\
+\\
+\textbf{Modello 2}: Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.045667\\ 
+\textbf{Picco Port. (140)}&$<$2e-16 ***&-0.073420\\ 
+\textbf{Media Port. (2300)}&$<$2e-16 ***&-0.202027\\ 
+\textbf{Picco Port. (2300)}&$<$2e-16 ***&0.225690\\ 
+\textbf{Temperatura}&$<$2e-16 ***&-0.001174\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.007755\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+A differenza del precedente caso, la generazione di un modello di previsione del coefficiente ha implicato la sostituzione di "Picco Coppia Finale" a "Media Coppia Finale". Anche qui, tutte le variabili risultano statisticamente significative con grado identicamente elevato. La variabile più rilevante è ancora il picco di portata in fase a regime, caratterizzato da un leggero aumento del proprio coefficiente di regressione. Il coefficiente di determinazione ($R^2$) associato al modello è leggermente inferiore al precedente: 0.872.\\
+\\
+In seguito, si è proceduto a combinare le colonne relative alla coppia finale - considerate separatamente\footnote{Nota precedente.} - e alla temperatura con le singole grandezze di portata che mostravano una correlazione $\leq 82\%$.\\
+\\
+\textbf{Modello 3}: Coefficiente $\sim$  Picco Port. (140) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.076790\\ 
+\textbf{Picco Port. (140)}&$<$2e-16 ***&-0.106135\\
+\textbf{Temperatura}&$<$2e-16 ***&-0.005642\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.033331\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili mostrano un grado di significatività statistica molto elevato. La variabile più rilevante è il picco di portata in fase di controllo, che presenta una relazione negativa con il \textit{coefficiente}. La motivazione, qui, è ovvia: il picco di portata in fase di controllo è identicamente distribuito alla media di portata a 140 rpm e correlato al 91\% con la media di pressione in fase di controllo, che sono le due variabili con cui $\alpha$ è stato generato (equazione \ref{eq}). Il coefficiente di determinazione ($R^2$) si abbassa ancora: $\sim$0.81.\\
+\\
+\textbf{Modello 4}: Coefficiente $\sim$  Picco Port. (140) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.07968\\ 
+\textbf{Picco Port. (140)}&$<$2e-16 ***&-0.10728\\
+\textbf{Temperatura}&$<$2e-16 ***&-0.00495\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.01119\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili risultano statisticamente molto significative. La variabile più rilevante è ancora, per le ragione ovvie prima menzionate, il picco di portata in fase di controllo. Il coefficiente di determinazione ($R^2$) è pari a 0.803.\\ 
+\\
+\textbf{Modello 5}: Coefficiente $\sim$ Media Port.(2300) + Temperatura + Media Coppia Finale 
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.0103293\\ 
+\textbf{Media Port. (2300)}&$<$2e-16 ***&0.0479580\\
+\textbf{Temperatura}&$<$0.0128 *&-0.0003287\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.0368901\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+In questo caso, la variabile "Temperatura" rivela livello di significatività nettamente minore rispetto alle altre variabili. Nonostante le altre variabili risultano rilevanti per determinare il valore di $\alpha$, la capacità del modello nel catturare la variabilità dei dati subisce comunque una grave diminuzione, producendo un $R^2$ pari a 0.7443.\\
+\\
+\textbf{Modello 6}: Coefficiente $\sim$ Media Port.(2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.00876\\ 
+\textbf{Media Port. (2300)}&$<$2e-16 ***&0.04856\\
+\textbf{Temperatura}&0.333\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.02097\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+La variabile "Temperatura" non risulta essere statisticamente significativa: il \textit{p-value} ad essa associato è molto superiore al limite di 0.05, per cui l'ipotesi nulla che il suo coefficiente di regressione sia nullo non viene rifiutata. Si è dunque proceduto a ristimare la funzione di regressione senza tale colonna, ottenendo un $R^2$ di 0.7393.\\
+\\
+\textbf{Modello 7}: Coefficiente $\sim$ Picco Port. (2300) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.0105056\\ 
+\textbf{Picco Port. (2300)}&$<$2e-16 ***&0.0486005\\
+\textbf{Temperatura}&0.342\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.0342434\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Anche qui, la temperatura non risulta rilevante ai fini della previsione e viene nuovamente scartata. Le altre \textit{feature} contribuiscono in misura ridotta alla determinazione del coefficiente.
+L'indice di bontà di adattamento ($R^2$) associato al modello è pari a 0.7450919.\\
+\\
+\textbf{Modello 8}: Coefficiente $\sim$ Picco Port. (2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.00904\\ 
+\textbf{Picco Port. (2300)}&$<$2e-16 ***&0.04919\\
+\textbf{Temperatura}&0.728\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.01982\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+La "Temperatura" non risulta nuovamente significativa. Come in precedenza, le altre variabili sono poco rilevanti e producono un $R^2$ di $\sim$0.74.
+\subsubsection{Modelli di previsione con variabili di pressione}
+\textbf{Modello 1}: Coefficiente $\sim$  Picco Press. (140) + Media Press.(2300) + Picco Press. (2300) + Temperatura + Media Coppia Finale
+{\begin{table}[H] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.065700\\ 
+\textbf{Picco Press. (140)}&$<$2e-16 ***&-0.080396\\ 
+\textbf{Media Press. (2300)}&$<$2e-16 ***&-0.025513\\ 
+\textbf{Picco Press. (2300)}&$<$2e-16 ***&0.036890\\ 
+\textbf{Temperatura}&0.241\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&-0.001809\\
+\bottomrule 
+\end{tabular}
+\end{table}}
+La variabile "Temperatura" non risulta statisticamente significativa e viene dunque scartata per la previsione del coefficiente di perdita. Al contrario, i valori dei coefficienti di regressione associati alle altre variabili risultano molto rilevanti nella previsione del \textit{leakage coefficient}. Il modello offre un'ottima misura di performance ($R^2$), pari a 0.9507.\\
+\\
+\textbf{Modello 2}: Coefficiente $\sim$  Picco Press. (140) + Media Press.(2300) + Picco Press. (2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.065649\\ 
+\textbf{Picco Press. (140)}&$<$2e-16 ***&-0.080372\\ 
+\textbf{Media Press. (2300)}&$<$2e-16 ***&-0.024678\\ 
+\textbf{Picco Press. (2300)}&$<$2e-16 ***&0.036036\\ 
+\textbf{Temperatura}&0.0614\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&-0.001603\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+La temperatura continua ad essere eliminata in quanto non significativa e viene eliminata dal modello. Le altre variabili, invece, contribuiscono efficacemente alla descrizione dell'andamento di $\alpha$: il coefficiente di determinazione ($R^2$) è pari a 0.9508.\\
+Tuttavia, è possibile che il fattore penalizzante della multicollinearità, da cui è affetta la matrice del disegno, distorca i rispettivi risultati della regressione. Per tale ragione, è stato necessario valutare successivi modelli, che includono separatamente le grandezze di pressione con una correlazione $\leq 82\%$, combinate con "Temperatura", "Media Coppia Finale" e "Picco Coppia Finale". Le due variabili relative alla coppia finale continuano ad essere considerate separatamente per i motivi prima espresse.\\
+\\
+\textbf{Modello 3}:  Coefficiente $\sim$  Picco Press. (140) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.0829343\\ 
+\textbf{Picco Press. (140)}&$<$2e-16 ***&-0.0968194\\
+\textbf{Temperatura}&$<$2e-16 ***&-0.0007664\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&-0.0021630\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili sono statisticamente significative. La variabile più rilevante per prevedere il coefficiente di perdita è il picco di pressione in fase di controllo (140 rpm), caratterizzato da una relazione negativa con $\alpha$. La ragione, come visto in precedenza, è facilmente deducibile: tale colonna è identicamente ditribuita alla media di pressione durante la medesima fase e correlata al 92\% con la media di portata a 140 rpm, le due variabili con cui la $Y$ è stata generata (equazione \ref{eq}). l coefficiente di determinazione ($R^2$) associato al modello è pari a 0.938.\\
+\\
+\textbf{Modello 4}: Coefficiente $\sim$  Picco Press. (140) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&0.082962\\ 
+\textbf{Picco Press. (140)}&$<$2e-16 ***&-0.096812\\
+\textbf{Temperatura}&$<$2e-16 ***&-0.000584\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&-0.003744\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili sono statisticamente significative e caratterizzate da una relazione negativa con il coefficiente di dispersione. Come ci si poteva attendere, "Picco Press. (140)" risulta ancora la più rilevante. La bontà di adattamento rimane eccellente: 0.938.\\
+\\
+\textbf{Modello 5}:  Coefficiente $\sim$ Media Press.(2300) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.007341\\ 
+\textbf{Media Press. (2300)}&$<$2e-16 ***&0.048612\\
+\textbf{Temperatura}&0.00271 **&-0.000396\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.036867\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Qui, la variabile "Temperatura" è leggermente meno significativa, e con molta probabilità questo fattore è causa della riduzione della capacità del modello di catturare la variabilità dei dati, offrendo un $R^2$ di $\sim$0.745.\\
+\\
+\textbf{Modello 6}: Coefficiente $\sim$ Media Press.(2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.00876\\ 
+\textbf{Media Press. (2300)}&$<$2e-16 ***&0.04856\\
+\textbf{Temperatura}&0.333\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.02097\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+In questo caso, la temperatura non è addirittura significativa per la previsione del target, e viene dunque scartata dal modello. A seguito di quanto detto, è facile dedurre la ragione per cui il coefficiente di correlazione ($R^2$) subisca un'ulteriore contrazione a $\sim$0.74.\\
+\\
+\textbf{Modello 7}: Coefficiente $\sim$ Picco Press.(2300) + Temperatura + Media Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.0071346\\ 
+\textbf{Picco Press. (2300)}&$<$2e-16 ***&0.0488265\\
+\textbf{Temperatura}&0.000201 ***&-0.0004871\\
+\textbf{Media Coppia Finale}&$<$2e-16 ***&0.0316346\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili sono statisticamente significative. Nonostante ciò, l'indice di bontò di adattamento ($R^2$) è basso: 0.7487.\\
+\\
+\textbf{Modello 8}: Coefficiente $\sim$ Picco Press.(2300) + Temperatura + Picco Coppia Finale
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$&Coefficiente\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&-0.0058528\\ 
+\textbf{Picco Press. (2300)}&$<$2e-16 ***&0.0493986\\
+\textbf{Temperatura}&0.00187**&-0.0004141\\
+\textbf{Picco Coppia Finale}&$<$2e-16 ***&0.0194586\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili sono rilevanti, ma, come visto nel modello 7, la performance ($R^2$) è più scarsa (0.745).
+
+
+\subsection{Tecniche di \textit{shrinkage}}
+\subsubsection{Regressione \textit{Ridge}}
+La regressione \textit{Ridge} si riferisce ad un modello di regressione lineare i cui coefficienti non sono stimati dal metodo dei minimi quadrati (OLS), ma da un altro stimatore, chiamato stimatore \textit{ridge}, che possiede \textit{bias} ma ha una varianza inferiore rispetto allo stimatore OLS.Lo stimatore ridge riduce i coefficienti di regressione, in modo che le variabili, con un contributo minore al risultato, abbiano i loro coefficienti vicini allo zero. Invece di forzarli a essere esattamente zero, essi vengono penalizzati da una costante \textit{lambda} ($\lambda$), costringendoli così a essere piccoli in modo continuo. In questo modo la complessità del modello diminuisce senza eliminare nessuna variabile. Un importante vantaggio della regressione \textit{Ridge} è che si comporta ancora bene, rispetto al normale metodo dei minimi quadrati, in una situazione in cui si hanno molti dati multivariati. Uno svantaggio è invece che include tutti i predittori nel modello finale, a differenza dei metodi di feature selection, che generalmente selezionano un insieme ridotto di variabili tra quelle disponibili. (\textbf{fonte: https://lorenzogovoni.com/tre-tecniche-di-regolarizzazione-ridge-lasso-ed-elastic-net/)}.\\
+Dunque, per uno stimatore ridge, la selezione di un buon valore per $\lambda$ è fondamentale: per trovare il valore ottimale è stata utilizzato un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un valore pari a 0.01.\\
+Nel modello sono state considerate congiuntamente le variabili di Pressione e di Portata, la Temperatura, \textit{Picco Coppia Finale} e \textit{Media Coppia Finale}. I risultati associati a questo modello sono i seguenti:
+\begin{center}
+\includegraphics[scale=0.7]{ridge.png}
+\end{center}
+Si può notare che la variabile $picco\_pressione\_velocita\_1$ (\textit{Picco Press. (140)}) risulta la più rilevante, mentre la \textit{Temperatura} non contribuisce alla previsone del \textit{Coefficiente}. Il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.845.
+\subsubsection{Regressione \textit{Lasso}}
+La regressione Lasso può essere utilizzata come alternativa ai metodi di \textit{feature selection} per eseguire la selezione delle variabili al fine di ridurre la complessità del modello. Riduce i coefficienti di regressione verso lo zero penalizzando il modello di regressione con un termine di penalità lamda ($\lambda$): la penalità ha l’effetto di forzare alcune delle stime dei coefficienti, con un contributo minore al modello, a essere esattamente uguale a zero.
+Come nella regressione \textit{Ridge}, la selezione del valore ottimale di $\lambda$ è stata effettuata utilizzando un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un valore pari a 0.00001. I risultati associati a questo modello sono i seguenti:
+\begin{center}
+\includegraphics[scale=0.7]{lasso.png}
+\end{center}
+L'unica variabile ritenuta importante per la previsione del \textit{Coefficiente} è $picco\_pressione\_velocita\_1$ (\textit{Picco Press. (140)}). Il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.7058.
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
