@@ -58,7 +58,7 @@
 \Authors{Riccardo Cervero\textsuperscript{1}, Marco Savino\textsuperscript{2}, Luca Lazzati\textsuperscript{3}} % Authors
 \affiliation{\textsuperscript{1}\textit{794126, Dipartimento di Informatica, Sistemistica e Comunicazione}} % Author affiliation
 \affiliation{\textsuperscript{2}\textit{793516, Dipartimento di Informatica, Sistemistica e Comunicazione}} % Author affiliation
-\affiliation{\textsuperscript{3}\textit{?, Dipartimento di Informatica, Sistemistica e Comunicazione}}
+\affiliation{\textsuperscript{3}\textit{850334, Dipartimento di Informatica, Sistemistica e Comunicazione}}
 
 \Keywords{Monitoraggio -- Previsione} % Keywords - if you don't want any simply remove all the text between the curly brackets
 \newcommand{\keywordname}{Keywords} % Defines the keywords heading name
@@ -85,37 +85,48 @@
 %	ARTICLE CONTENTS
 %----------------------------------------------------------------------------------------
 
-\section{Caso di studio} % The \section*{} command stops section numbering
-L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. In particolare, le misurazioni sono state raccolte in corrispondenza di due precise fasi: test a regime, in cui pressione e portata vengono rilevate a seguito dell'impostazione di una velocità pari a 2300 rotazioni per minuto (rpm), e test in fase di controllo, legato ad una velocità minore, precisamente pari a 140 rotazioni per minuto.\\
-La performance di ogni pezzo prodotto dipende principalmente Di seguito viene riportata l’equazione lineare che descrive le performance, verificata sperimentalmente da
-Bosch, che mette in relazione le grandezze di pressione e portata durante la fase di controllo (@140rpm, T=40°C):
+\section{Caso di studio}
+L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. In particolare, le misurazioni sono state raccolte nell'ambito di un circuito pneumatico di prova, che ha implicato due precise fasi: un test a regime, in cui pressione e portata vengono rilevate a seguito dell'impostazione di una velocità di rotazione della pompa pari a 2300 rotazioni per minuto (rpm), e un test in fase di controllo, legato ad una velocità minore, precisamente pari a 140 rotazioni per minuto.\\
+La produzione di ogni pezzo dipende da alcune principali grandezze: 
+\begin{itemize}
+    \item $Q_{GP}$, ovvero la portata attuale del prodotto misurata tramite apposito trasduttore in litri all'ora [L/h]
+    \item $Q_{GP,theor}$, la portata teorica del prodotto, nota a priori (108.36 [L/h]) e fornita dall’ufficio \textit{R\&D}
+    \item $P_{out}$ è la pressione in uscita misurata tramite apposito trasduttore [bar]\footnote{Registrara nel database come \texttt{media\_pressione\_velocita\_1}.}.
+    \item $\alpha$, ovvero il coefficiente di perdita (\textit{leakage coefficient}), misurato in [(l/h)/bar], che riassume la prestazione delle pompe GP5: essendo direttamente proporzionale agli scostamenti meccanici interni, descrive la sensibilità del prodotto alle variazioni di pressione in uscita; se questo coefficiente di flusso è basso, la portata della pompa è meno influenzata dalla \textit{outlet pression}, e il pezzo è più robusto e affidabile.
+\end{itemize}
+Nel dettaglio, gli scostamenti interni causati dalla portata in uscita sono classificati in
+\begin{itemize}
+    \item distanza assiale, pari all'altezza della custodia e degli ingranaggi che costituiscono la pompa
+    \item distanze di punta, che comprendono il diametro di punta degli ingranaggi e il diametro esterno ed interno della mezzaluna; quest'ultimo, in particolare, si identifica come la distanza della componente \textit{half moon} dalla componente rotante della pompa
+    \item spostamento degli ingranaggi e dei cuscinetti interni rispetto alla custodia.
+\end{itemize}
+Riassumendo, durante il test il principale ingranaggio interno ruota eccentricamente all'interno della custodia della pompa, generando una bassa pressione in uscita. Maggiore la reazione a questo flusso uscente, in termini di spostamento delle proprie componenti interne, minore l'indice di prestazione del prodotto, indicato con $\alpha$. La direzione e l'entità di ciascun scostamento può essere intuita dalla seguente Figura:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9 \linewidth]{flow.png}
+    \label{fig:em}
+\end{figure}
+La freccia rosa al centro ("\textit{journal bearing leakage}") indica uno scentramento del più piccolo ingranaggio centrale rispetto alla posizione originaria. Le frecce rossa e viola disegnano rispettivamente lo sfalsamento interno ed esterno della componente superiore definita "a mezza luna" (nell'ambito delle cosiddette distanze di punta). Infine, le due frecce arancioni rappresentano una variazione delle distanze assiali interna ed esterna.\\
+La produzione GP5 può essere dunque distinta in "classi di coefficiente di perdita", ossia gruppi di pompe che condividono lo stesso \textit{leakage coefficient} $\alpha$, che viene messo in relazione con la pressione e la portata con la seguente formula\footnote{$Q_{GP}$ e $P_{out}$ sono note rispettivamente col nome di \texttt{media\_portata\_velocita\_1}, e \texttt{media\_pressione\_velocita\_1}} verificata sperimentalmente:
 \begin{equation}
     Q_{GP} = Q_{GP,theor} − \alpha \cdot P_{out}
 \end{equation}
-dove: (\textbf{RIPORTARE, COME "NOTE A FONDO PAGINA", PER OGNI VARIABILI, IL NOME DELLA VARIABILI ALL'INTERNO DEL DATASET. ESEMPIO: $Q_{GP}$ è NOTA COME media\_portata\_velocita\_1}
-\begin{itemize}
-    \item $Q_{GP}$ è la portata attuale del prodotto misurata tramite apposito trasduttore [L/h]
-    \item $Q_{GP,theor}$ è la portata teorica del prodotto, nota a priori (108.36 [L/h]) e fornito dall’ufficio R\&D
-    \item $\alpha$ è il coefficiente di perdita (\textit{Leakage coefficient}), misurato in [(l/h)/bar] e rappresenta un indice di prestazione delle pompe GP5. La produzione GP5 può essere distinta in "classi di coefficiente di perdita" ossia gruppi di pompe che condividono lo stesso \textit{Leakage coefficient}.
-    \item $P_{out}$ è la pressione in uscita misurata tramite apposito trasduttore [bar]. (\textbf{NOTA COME media\_pressione\_velocita\_1})
-\end{itemize}
-Ad ogni fase sono associate delle misure caratteristiche di: velocità (velocita\_a\_regime, velocità\_1), picco pressione (picco\_pressione\_velocita\_a\_regime, picco\_pressione\_velocita\_1), media pressione (media\_pressione\_velocita\_a\_regime, media\_pressione\_velocita\_1), picco portata (picco\_portata\_velocita\_a\_regime, picco\_portata\_velocita\_1) e media portata (media\_portata\_velocita\_a\_regime, media\_portata\_velocita\_1).\\
-\textbf{SAREBBE MEGLIO RIPORTARE IL NOME DELLE VARIABILI TRA PARENTESI COME NOTE A FINE PAGINA, INDICIZZANDOLE CON IL PEDICE }.\\
+L'andamento del coefficiente di perdita, poiché fondamentale per il monitoraggio del prodotto, verrà analizzato non soltanto al variare del programma selezionato o della fase impostata, ma soprattutto in relazione alle altre misurazioni estratte durante il circuito pneumatico di prova. Nel dettaglio, a ciascuna delle due fasi di test sono associate interessanti osservazioni numeriche relative a picco e media della \textit{outlet pression}, picco e media della portata in uscita, picco e media della coppia in fase finale - ovvero in corrispondenza di una velocità di 100 rotazioni al minuto -, e temperatura di prova del liquido con cui viene lubrificata la pompa per la rotazione.
 \\
-Le altre variabili significative, soggette ad analisi sono le seguenti: \textit{Programma} (ci sono distinte classi di prodotto GP5 e quindi diversi programmi; in particolare sono definite due tipologie di Pompe: pompa DAI a cui è associato un codice Programma "18\_GP5\_910\_CW" e pompe STD a cui sono associati tutti gli altri codici Programma), picco\_coppia\_finale (@100rpm), media\_coppia\_finale (@100rpm) e Temperatura.\\
+Altre variabili significative sono presenti nel \textit{database} fornito, tra cui il codice dei turni in cui è suddivisa la linea di lavoro, ora e data del \textit{record}, descrizione dell'esito finale della prova, e il \textit{Programma}, corrispondente alla classe di prodotto GP5, che è raggruppabile nelle due macro-categorie \textit{Daimler (DAI} e Standard (STD)\footnote{La macro-categoria \textit{Daimler} è descritta dal codice programma \texttt{18\_GP5\_910\_CW}, mentre la tipologia Standard comprende tutti gli altri codici programma}.\\
 \\
-I tre \textit{task} proposti da Bosch sono i seguenti:
+A partire da tale caso di studio, sono stati proposti tre \textit{task}:
 \begin{enumerate}
-    \item Implementare un sistema di monitoraggio del coefficiente di perdita
-    \item Dato un intervallo del coefficiente di perdita, definire un limite dinamico $Q_{GP}$ rispetto alla pressione di uscita
-    \item Definire un modello per la previsione del coefficiente di perdita.
+    \item analisi preliminare delle grandezze del processo produttivo e implementazione di un sistema di monitoraggio \textit{real-time} del coefficiente di perdita (Sezioni \ref{prem} e \ref{rt})
+    \item definizione, dato un intervallo del coefficiente di perdita, di un limite dinamico della portata $Q_{GP}$ rispetto alla pressione in uscita (Sezione \ref{lim})
+    \item stima di un modello efficace per la previsione del coefficiente di perdita $\alpha$ (Sezione \ref{Mod}).
 \end{enumerate}
 %------------------------------------------------
 \section{Data Preparation}
 Il \textit{database} si compone di 296605 osservazioni, descritte da 33 colonne. Tuttavia, è stato necessario focalizzare l'analisi su quelle che presentavano un certo grado di rilevanza e utilità per l'oggetto di studio. Ciò ha comportato la rimozione, durante una prima fase di \textit{pre-processing}, delle variabili che presentavano le seguenti caratteristiche: si manifestavano come un unico valore costante\footnote{Le costanti rimosse sono: \texttt{"Banco"}, \texttt{"Master"}, \texttt{"Picco coppia zero"}, \texttt{"Picco coppia iniziale"}, \texttt{"Media coppia iniziale"}, \texttt{"Velocità 1"}, \texttt{"Picco pressione velocità 2"}, \texttt{"Media pressione velocita 2"}, \texttt{"Picco portata velocità 2"}, \texttt{"Media portata velocità 2"}.}, mostravano una distribuzione eccessivamente sbilanciata verso una sola classe\footnote{È questo il caso di \texttt{"Velocità 2"}, \texttt{"Esito"} e di conseguenza \texttt{"N. Esito"}, \texttt{"Coppia max ciclo"}, \texttt{"Velocità a regime"}.}, erano ridondanti, poco interessanti o erano già state segnalate tali dai fornitori del \textit{dataset}\footnote{Le colonne inutili sono: \texttt{"Codice da Linea"} - identificativo del pezzo -, \texttt{"Media coppia zero"}, \texttt{'Data'} e \texttt{'Ora'}, poiché i dati sono stati raccolti in un arco temporale non uniforme.}.\\
 Successivamente, è stata rimossa una riga, poiché penalizzata dalla mancanza dei valori di pressione. Infine, poiché la differenza di scala era spesso eccessiva per molte colonne numeriche, si è deciso di normalizzare la matrice originale, mappando tutte le variabili non categoriche fra 0 e 1. 
 %------------------------------------------------
-\section{Analisi preliminari}
+\section{Analisi preliminari}\label{prem}
 Dopo le operazioni di pulizia appena menzionate, si è proceduto ad analizzare in maniera preliminare le colonne rilevanti, per ottenere un primo approfondimento sui descrittori e i rapporti di dipendenza fra gli stessi. 
 \subsection{Variabili categoriche}
 I dati nominali conservati sono relativi a due precisi aspetti del processo: la segmentazione del lavoro in turni differenti e il programma selezionato per la creazione del pezzo, ovvero la tiplogia di pompa.\\
@@ -309,7 +320,7 @@ L'ultima fase di analisi preliminare consiste nell'identificazione degli \textit
 \\
 Si è successivamente proceduto ad estrarre \textit{outlier} multivariati grazie all'algoritmo \textit{Local Outlier Factor} (LOF), basato sul calcolo delle deviazioni locali di ogni punto dal proprio vicinato. In questo caso, i valori anomali individuati rappresentano un porzione molto grande del database (75\%) e prescindono, come in precedenza, da particolari condizioni o programmi. Questa elevata quantità può dipendere dall'incidenza che gli specifici fattori contestuali di progettazione hanno sulle varie distribuzioni, elevando il grado di variabilità nell'andamento globale, così come dall'alternanza di fasi diverse nel processo. Sarebbe pertanto più utile applicare l'algoritmo di \textit{anomaly detection} separatamente in corrispondenza della cosiddetta velocità 1 (140rpm) e della fase di regime, e su ciascuna classe GP5.
 %------------------------------------------------
-\section{Sistema di monitoraggio \textit{real-time}}
+\section{Sistema di monitoraggio \textit{real-time}}\label{rt}
 Il processo industriale può essere ottimizzato grazie all'implementazione di sistemi di monitoraggio che individuino in tempo reale le eventuali anomalie, registrino i dati e li rappresentino graficamente su schermo per ottenere una visualizzazione \textit{user-friendly} dell'andamento delle variabili rilevanti. Nell'ambito di questo progetto, viene proposta una soluzione in grado di eseguire automaticamente le attività elencate. Tale sistema è stato interamente scritto e testato all'interno dell'ambiente di programmazione \texttt{Python}\footnote{Il codice è disponibile al seguente link: \url{https://github.com/RCrvro/Industry-Lab---Progetto/tree/master/Monitoraggio\%20realtime}.}.\\
 Il programma, dunque, consta di tre elementi principali. Innanzitutto, si ha una componente di \textit{data ingestion}, la quale permette di ricevere il flusso di dati osservati dai sensori durante il processo di creazione di ogni pompa, ed elaborarlo per due scopi separati:
     \begin{itemize}
@@ -326,7 +337,7 @@ In questo caso, si è scelto di simulare la visualizzazione di ipotetiche osserv
 Nel video, sul lato destro dello schermo, sono visibili quattro pagine del terminale. La prima in alto esegue un \texttt{Producer} per simulare l'invio delle misurazioni del coefficiente $\alpha$ da parte del proprio sensore, tramite scrittura manuale di alcuni valori. La seconda attiva un secondo \texttt{Producer}, per simulare il sensore della variabile di portata. La terza implementa il programma \texttt{writer}: ogni dato ricevuto dal sensore - in questo caso di $\alpha$ - viene scritto, assieme ai metadati, nel \textit{logfile} \texttt{"Coefficiente.csv"} apparso sul bordo destro del monitor dopo l'invio del primo valore. Alla fine del video, il file verrà aperto, per mostrare il risultato delle registrazioni. Inoltre, sempre per quanto concerne il \texttt{writer}, la pagina mostrerà un conteggio dei messaggi ricevuti. Infine, l'ultima finestra in basso inizializza l'applicazione grafica in corrispondenza della porta \texttt{8050} e mantiene connesso il sistema di monitoraggio.\\
 L'applicazione è programmata per la segnalazione di eventuali errori, che possono essere esaminati cliccando l'icona blu nell'angolo inferiore destro della pagina \textit{Web}. 
 %------------------------------------------------
-\section{Limite dinamico di portata}
+\section{Limite dinamico di portata}\label{lim}
 Poiché la \textit{performance} della pompa GP5 dipende strettamente dal proprio valore di portata in uscita, è necessario controllare che tale misurazione non scenda al di sotto di una determinata soglia, variabile a seconda della macro-categoria selezionata: \textit{Daimler} o Standard\footnote{I valori corretti di portata in uscita per la pompa \textit{Daimler} sono compresi fra 45.86 e 63.36. Per quanto riguarda la categoria Standard, gli estremi considerati sono 57.36 e 75.36.}. Oltre al tipo di "programma", però, tale grandezza condivide una relazione matematica con le variabili del coefficiente di \textit{leakage} $\alpha$ e della pressione (equazione \ref{eq}). Pertanto, il processo produttivo necessita di un monitoraggio dei valori di portata in uscita rispetto alle colonne menzionate. A tal proposito, oltre ad un algoritmo che calcoli, a partire da $\alpha$ e pressione, la portata in uscita e valuti se tale misurazione rientra nel \textit{range} definito dalla miglior\footnote{La regione ammissibile viene limitata superiormente perché eventuali valori oltre il migliore registrato potrebbero derivare da anomalie del pezzo prodotto.} e peggior osservazione in corrispondenza della categoria GP5, è possibile rappresentare graficamente tale limite dinamico come una regione ammissibile all'interno di uno spazio tridimensionale, e osservare la differenza fra il piano e una data misurazione. In questo modo, è possibile monitorare già graficamente la presenza di eventuali anomalie, e si è in grado di valutare visivamente la distanza dai comportamenti tipici del processo produttivo.\\
 È disponibile una demo dell'algoritmo di rappresentazione grafica del limite dinamico di portata al link \href{https://www.youtube.com/watch?v=cxHw8cPm-Ek}{\textbf{\texttt{youtu.be/cxH}}}: date in input le coordinate di $\alpha$ e pressione, viene generata la regione ammissibile prima descritta (in blu) e indicato il punto relativo all'osservazione. La regione critica si modifica a seconda della categoria di pompa, e il colore del punto varia in base alla correttezza dell'osservazione fornita in input: se essa rientra nel limite indicato per la data classe GP5, il punto è rappresentato in verde (Figura 18), altrimenti in rosso (Figura 19).
 \begin{figure}[h]
@@ -634,10 +645,10 @@ Variabile&$Pr(> |t|)$&Coefficiente\\
 \end{table}}\\
 Tutte le variabili sono rilevanti, ma, come visto nel modello 7, la performance ($R^2$) è più scarsa (0.745).
 \subsection{Tecniche di \textit{shrinkage}}
-Poichè i dati presentano un fortissimo problema di multicollinearità, risulta impossibile includere la totalità delle colonne in un modello di regressione lineare per la previsione del coefficiente $\alpha$, ed è quindi necessario ridurre la matrice del disegno. L'estrazione di un subset ottimale di \textit{feature} può avvenire tramite vari tentativi di selezione manuale - come effettuato nella sezione precedente -, ma tale metodo può essere troppo dispendioso. In alternativa, è possibile eseguire una \textit{feature selection} implicita tramite aggiunta di una componente di penalizzazione alla funzione di regressione. L'applicazione di questo meccanismo di regolarizzazione, ponendo un vincolo al valore dei coefficienti di regressione, contrae le stime $\beta$ e quindi riduce la rilevanza dei candidati esplicativi. In questo modo, le colonne che meno contribuiscono a descrivere la variabilità di $\alpha$, subiscono un'ulteriore riduzione della propria importanza. Qualora la contrazione comportasse l'annullamento di un coefficiente di regressione, allora il predittore associato sarebbe indirettamente scartato dal modello. In questo caso, le tecniche di shrinkage avranno successo se riusciranno a filtrare le poche colonne realmente importanti, eliminando l'informazione ridondante presente nelle distribuzioni eccessivamente correlate.\\
+Poichè i dati presentano un fortissimo problema di multicollinearità, risulta impossibile includere la totalità delle colonne in un modello di regressione lineare per la previsione del coefficiente $\alpha$, ed è quindi necessario ridurre la matrice del disegno. L'estrazione di un subset ottimale di \textit{feature} può avvenire tramite vari tentativi di selezione manuale - come effettuato nella sezione precedente -, ma tale metodo può essere troppo dispendioso. In alternativa, è possibile eseguire una \textit{feature selection} implicita tramite aggiunta di una componente di penalizzazione alla funzione di regressione. L'applicazione di questo meccanismo di regolarizzazione, ponendo un vincolo al valore dei coefficienti di regressione, contrae le stime $\beta$ e quindi riduce la rilevanza dei candidati esplicativi. In questo modo, le colonne che meno contribuiscono a descrivere la variabilità di $\alpha$, subiscono un'ulteriore riduzione della propria importanza. Qualora la contrazione comportasse l'annullamento di un coefficiente di regressione, allora il predittore associato sarebbe indirettamente scartato dal modello. In questo caso, le tecniche di \textit{shrinkage} avranno successo se riusciranno a filtrare le poche colonne realmente importanti, eliminando l'informazione ridondante presente nelle distribuzioni eccessivamente correlate.\\
 Sono state adottate due popolari tipologie di regolarizzazione: \textit{Ridge} e \textit{Lasso}.
 \subsubsection{Regressione \textit{Ridge}}
-La stimatore lineare \textit{Ridge} è formulato come segue:
+La stimatore lineare \textit{Ridge} \cite{Ridge} è formulato come segue:
 \begin{equation}\label{eq}
     \hat{\beta}^{\lambda}=(X'X+\lambda I_p)^{-1}X'y
 \end{equation}
@@ -661,7 +672,7 @@ Dunque, per uno stimatore ridge, la selezione di un buon valore per $\lambda$ è
 \end{figure}
 È possibile notare come la variabile "Picco Press. (140)" risulti la più rilevante, ovvero la meno contratta dalla penalizzazione. La ragione risiede, come spiegato in precedenza, nella fortissima dipendenza lineare fra tale regressore e le distribuzioni con cui è stato generato il coefficiente di dispersione. Al contrario, la "Temperatura" non contribuisce alla previsione, e il suo $\beta$ è pertanto annullato. Per il resto, la relativa importanza del resto dei candidati appare nettamente ridimensionata, ad indicare la grande ridondanza informativa all'interno della matrice del disgeno. Infine, il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.845, attestandosi pertanto su un livello accettabile, ma non eccellente.
 \subsubsection{Regressione \textit{Lasso}}
-Nonostante sia un'ottima soluzione per contrarre la varianza della funzione di regressione, il metodo \textit{Ridge} è, in realtà, raramente in grado di effettuare una vera e propria \textit{feature selection}, ovvero di annullare i coefficienti che moltiplicano le variabili meno rilevanti per descrivere il fenomeno di studio. Questa limitazione deriva dalla scelta di una norma $L_2$ come componente di penalizzazione. La regressione \textit{Lasso} può essere pertanto utilizzata come alternativa ai metodi di \textit{feature selection}, perché, utilizzando una funzione di regolarizzazione non derivabile - norma $L_1$, è in grado di ridurre ulteriormente i coefficienti di regressione verso lo zero. Anche qui, la selezione del valore ottimale di $\lambda$ è stata effettuata utilizzando un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un parametro ottimo praticamente nullo (0.00001). Le stime \textit{Lasso} dei coefficienti sono rappresentate graficamente in Figura 21.
+Nonostante sia un'ottima soluzione per contrarre la varianza della funzione di regressione, il metodo \textit{Ridge} è, in realtà, raramente in grado di effettuare una vera e propria \textit{feature selection}, ovvero di annullare i coefficienti che moltiplicano le variabili meno rilevanti per descrivere il fenomeno di studio. Questa limitazione deriva dalla scelta di una norma $L_2$ come componente di penalizzazione. La regressione \textit{Lasso} \cite{Lasso} può essere pertanto utilizzata come alternativa ai metodi di \textit{feature selection}, perché, utilizzando una funzione di regolarizzazione non derivabile - norma $L_1$, è in grado di ridurre ulteriormente i coefficienti di regressione verso lo zero. Anche qui, la selezione del valore ottimale di $\lambda$ è stata effettuata utilizzando un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un parametro ottimo praticamente nullo (0.00001). Le stime \textit{Lasso} dei coefficienti sono rappresentate graficamente in Figura 21.
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7 \linewidth]{lasso.png}
@@ -670,7 +681,7 @@ Nonostante sia un'ottima soluzione per contrarre la varianza della funzione di r
 \end{figure}
 L'unica variabile ritenuta importante per la previsione di $\alpha$ è sempre il picco di pressione in fase di controllo (140 rpm). Ogni altro candidato è scartato, come conseguenza logica dell'eccessiva dipendenza fra tutte le principali misurazioni che descrivono il processo di produzione delle pompe GP5. L'indice di bontà di adattamento ($R^2$) è scarso, pari a 0.7058.
 \subsection{Regressione Multilevel}
-I \textit{Multilevel Model}, noti anche come gerarchici lineari, sono modelli statistici caratterizzati da parametri che variano su più livelli. Come anticipato nella Sezione \ref{Alpha}, i dati a disposizione - riguardanti principalmente le performance del prodotto - variano a seconda dei sottogruppi di pompe. La regressione \textit{Multilevel} appare quindi perfetta per il fenomeno di studio, permettendo di considerare nel modello finale i fattori contestuali che subentrano nei diversi programmi di produzione, ovvero le differenti relazioni, da gruppo a gruppo, fra la variabile target e i regressori $X$.\\
+I \textit{Multilevel Model} \cite{Multil}\cite{Multil1}, noti anche come gerarchici lineari, sono modelli statistici caratterizzati da parametri che variano su più livelli. Come anticipato nella Sezione \ref{Alpha}, i dati a disposizione - riguardanti principalmente le performance del prodotto - variano a seconda dei sottogruppi di pompe. La regressione \textit{Multilevel} appare quindi perfetta per il fenomeno di studio, permettendo di considerare nel modello finale i fattori contestuali che subentrano nei diversi programmi di produzione, ovvero le differenti relazioni, da gruppo a gruppo, fra la variabile target e i regressori $X$.\\
 Sono stati pertanto costruiti vari modelli multilivello, considerando separatamente le variabili di pressione e portata - sempre con lo scopo di gestire il problema di multicollinearità - , oltre agli altri candidati esplicativi gà menzionati. La variabile di \textit{grouping} "Programma"\footnote{Con "variabile di \textit{grouping}" s'intende la colonna con cui vengono raggruppate le osservazioni, con lo scopo di ottenere una stima gerarchica, ovvero estrarre i diversi vettori dei coefficienti di regressione per ciascun gruppo.}, è indicata nella formulazione del modello con la scrittura "$(1|\textit{Programma})"$\footnote{Il valore 1 prima del simbolo $\mid$ sta ad indicare la stima di un'intercetta.}. 
 \subsubsection{Modelli multilivello con variabili di portata}
 \textbf{Modello 1}:  Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Media Coppia Finale + (1$\mid$Programma)
@@ -785,25 +796,48 @@ La variabile "Temperatura", in questo preciso caso, non è statisticamente signi
     \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
 \end{figure}
 \subsection{Conlclusioni sui modelli predittivi}
-Tutti i modelli proposti sono in grado di prevedere il coefficiente di perdita con un'accuratezza accettabile: il minimo valore dell'indice di bontà di adattamento è 0.7058, ottenuto con una regolarizzazione di tipo \textit{Lasso}. Le regressioni penalizzate risentono negativamente di un'eccessiva collinearità della matrice del disegno, e questo viene confermato dal fatto che anche l'$R^2$ prodotto al metodo \textit{Ridge} non sia eccellente: 0.845. Per questa ragione, le tecniche di \textit{shrinkage} sono sconsigliate.\\
-Il modello migliore ($R^2=0.9508$) per la previsione di $\alpha$ consiste nella seguente regressione lineare classica:
-$$\alpha\sim\text{Picco Press. (140) + Media Press.(2300)}+\text{Picco Press. (2300) + Temperatura + Picco Coppia Finale}$$
-ovvero quello basato sulla combinazione delle variabili di pressione, temperatura e picco di coppia finale.
-I modelli Multilevel sono sicuramente quelli da preferire nel caso in cui si voglia tenere in considerazione anche i diversi livelli di Programma.
-La presenza di multicollinearità tra le variabili a disposizione non permette di utilizzare congiuntamente sia le variabili di Portata e Pressione, sia \textit{Media Coppia Finale} e \textit{Picco Coppia Finale} per prevedere il coefficiente di perdita. Inoltre tale fenomeno influisce direttamente sui modelli, provocando spesso un coefficiente di determinazione ($R^2$) elevato, ma variabili poco rilevanti. Dunque per la previsione del \textit{Leakage Coefficient} bisogna trovare il giusto compromesso tra $R^2$ e rilevanza delle variabili. 
-
-CONCLUSIONI MIGLIOR MODELLO
-
+Tutti i modelli proposti sono in grado di prevedere il coefficiente di perdita con un'accuratezza accettabile: il minimo valore dell'indice di bontà di adattamento è 0.7058, ottenuto con una regolarizzazione di tipo \textit{Lasso}. Le regressioni regolarizzate risentono negativamente di un'eccessiva collinearità della matrice del disegno - come dimostrato empiricamente da Weisberg \cite{Wei}\cite{Wei1} -, e questo viene confermato dal fatto che anche l'$R^2$ prodotto al metodo \textit{Ridge} non sia eccellente: 0.845. Per questa ragione, le tecniche di \textit{shrinkage} sono sconsigliate.\\
+Il modello migliore ($R^2=0.9508$) per la previsione di $\alpha$ consiste nella regressione lineare classica basato sulla combinazione di alcune variabili di pressione ("Picco Press. (140)", "Media Press.(2300)","Picco Press. (2300)"), temperatura e picco di coppia finale. Segue il modello OLS che include le stesse variabili di quello appena citato, ecceto per quanto riguarda il picco della coppia finale, sostituito dalla media della coppia finale. Pertanto, le regressioni lineari multiple basate sulle misurazioni di pressione in entrambe le fasi si rivelano essere le metodologie più accurate per la descrizione della variabile target. La seconda classe di metodi, in ordine di prestazione, è quella dei modelli multilivello, che, riuscendo a catturare gli effetti randomici propri dei diversi contesti di produzione, ottengono valori di $R^2$ compresi fra un minimo di 0.918 (quando la regressione è basata su grandezze di portata) e un massimo di 0.939 (in corrispondenza delle colonne di pressione). Nell'ambito di tali modelli misti, è interessante nota come quelli basati sulle misurazioni di pressione mostrino sempre un coefficiente ICC molto minore, quindi una struttura gerarchica meno evidente, ma un numero di cluster di produzione sempre maggiore.
+In ogni caso, il grande problema di multicollinearità non ha permesso di utilizzare congiuntamente sia le variabili di portata e pressione che quelle relative alla coppia finale, né di condurre una \textit{feature selection} esplicita, obbligando una dispendiosa serie di tentativi di selezione manuale. 
 %----------------------------------------------------------------------------------------
 \section*{Codice}
 L'intero codice, implementato con linguaggi \texttt{Python} e \texttt{R}, è disponibile al link: \url{https://github.com/RCrvro/Industry-Lab---Progetto}.
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
+\newpage
 \phantomsection
 \bibliographystyle{unsrt}
-\bibliography{sample}
+\begin{thebibliography}{9}
 
+\bibitem{El} 
+T. Hastie, R. Tibshirani, J. Friedman; \textit{"The Elements of Statistical Learning: Data Mining, Inference, and Prediction"}, Stanford University, Stanford, 2009. 
+
+\bibitem{Ridge}
+A.E. Hoerl, R.W. Kennard; \textit{Ridge regression: Biased estimation for nonorthogonal problems}, in \textit{Technometrics}, vol. 42, n. 1, pp. 80–86, 1970.
+
+\bibitem{Lasso}
+R. Tibshirani; \textit{Regression Shrinkage and Selection via the lasso} in \textit{Journal of the Royal Statistical Society. Series B (methodological)}, 1996.
+
+\bibitem{Multil}
+S. W. Raudenbush, A. S. Bryk; \textit{Hierarchical linear models : applications and data analysis methods (2. ed., [3. Dr.] ed.)}, Thousand Oaks, CA [u.a.]: Sage Publications, 2002.
+
+\bibitem{Multil1}
+B. G. Tabachnick, L. S. Fidell; \textit{Using multivariate statistics (5th ed.)}, 2007.
+ 
+\bibitem{Wei} 
+\href{https://arxiv.org/pdf/math/0406473.pdf}{Discussione di Weisberg, su B. Efron, T. Hastie, I. Johnstone, R. Tibshirani; \textit{"Least Angle Regression"}, nella rivista \textit{"Annals of Statistics."}, 32 (2): pp. 407–499.} 
+
+\bibitem{Wei1} 
+S. Weisberg; \textit{Applied Linear Regression}, Wiley, New York, 1980.
+
+\bibitem{PD} 
+\href{https://plotly.com}{"Documentazione ufficiale di Plotly-Dash"}, 2020.
+
+\bibitem{AK} 
+\href{https://kafka.apache.org}{Apache Software Foundation, "Documentazione ufficiale di Apache Kafka"}, 2017.
+
+\end{thebibliography}
 %----------------------------------------------------------------------------------------
 
 \end{document}
