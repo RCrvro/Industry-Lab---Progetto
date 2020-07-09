@@ -85,12 +85,31 @@
 %	ARTICLE CONTENTS
 %----------------------------------------------------------------------------------------
 
-\section*{Caso di studio} % The \section*{} command stops section numbering
-
-\addcontentsline{toc}{section}{Caso di studio} 
-
-%Spiegazione problema
-
+\section{Caso di studio} % The \section*{} command stops section numbering
+L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. In particolare, le misurazioni sono state raccolte in corrispondenza di due precise fasi: test a regime, in cui pressione e portata vengono rilevate a seguito dell'impostazione di una velocità pari a 2300 rotazioni per minuto (rpm), e test in fase di controllo, legato ad una velocità minore, precisamente pari a 140 rotazioni per minuto.\\
+La performance di ogni pezzo prodotto dipende principalmente Di seguito viene riportata l’equazione lineare che descrive le performance, verificata sperimentalmente da
+Bosch, che mette in relazione le grandezze di pressione e portata durante la fase di controllo (@140rpm, T=40°C):
+\begin{equation}
+    Q_{GP} = Q_{GP,theor} − \alpha \cdot P_{out}
+\end{equation}
+dove: (\textbf{RIPORTARE, COME "NOTE A FONDO PAGINA", PER OGNI VARIABILI, IL NOME DELLA VARIABILI ALL'INTERNO DEL DATASET. ESEMPIO: $Q_{GP}$ è NOTA COME media\_portata\_velocita\_1}
+\begin{itemize}
+    \item $Q_{GP}$ è la portata attuale del prodotto misurata tramite apposito trasduttore [L/h]
+    \item $Q_{GP,theor}$ è la portata teorica del prodotto, nota a priori (108.36 [L/h]) e fornito dall’ufficio R\&D
+    \item $\alpha$ è il coefficiente di perdita (\textit{Leakage coefficient}), misurato in [(l/h)/bar] e rappresenta un indice di prestazione delle pompe GP5. La produzione GP5 può essere distinta in "classi di coefficiente di perdita" ossia gruppi di pompe che condividono lo stesso \textit{Leakage coefficient}.
+    \item $P_{out}$ è la pressione in uscita misurata tramite apposito trasduttore [bar]. (\textbf{NOTA COME media\_pressione\_velocita\_1})
+\end{itemize}
+Ad ogni fase sono associate delle misure caratteristiche di: velocità (velocita\_a\_regime, velocità\_1), picco pressione (picco\_pressione\_velocita\_a\_regime, picco\_pressione\_velocita\_1), media pressione (media\_pressione\_velocita\_a\_regime, media\_pressione\_velocita\_1), picco portata (picco\_portata\_velocita\_a\_regime, picco\_portata\_velocita\_1) e media portata (media\_portata\_velocita\_a\_regime, media\_portata\_velocita\_1).\\
+\textbf{SAREBBE MEGLIO RIPORTARE IL NOME DELLE VARIABILI TRA PARENTESI COME NOTE A FINE PAGINA, INDICIZZANDOLE CON IL PEDICE }.\\
+\\
+Le altre variabili significative, soggette ad analisi sono le seguenti: \textit{Programma} (ci sono distinte classi di prodotto GP5 e quindi diversi programmi; in particolare sono definite due tipologie di Pompe: pompa DAI a cui è associato un codice Programma "18\_GP5\_910\_CW" e pompe STD a cui sono associati tutti gli altri codici Programma), picco\_coppia\_finale (@100rpm), media\_coppia\_finale (@100rpm) e Temperatura.\\
+\\
+I tre \textit{task} proposti da Bosch sono i seguenti:
+\begin{enumerate}
+    \item Implementare un sistema di monitoraggio del coefficiente di perdita
+    \item Dato un intervallo del coefficiente di perdita, definire un limite dinamico $Q_{GP}$ rispetto alla pressione di uscita
+    \item Definire un modello per la previsione del coefficiente di perdita.
+\end{enumerate}
 %------------------------------------------------
 \section{Data Preparation}
 Il \textit{database} si compone di 296605 osservazioni, descritte da 33 colonne. Tuttavia, è stato necessario focalizzare l'analisi su quelle che presentavano un certo grado di rilevanza e utilità per l'oggetto di studio. Ciò ha comportato la rimozione, durante una prima fase di \textit{pre-processing}, delle variabili che presentavano le seguenti caratteristiche: si manifestavano come un unico valore costante\footnote{Le costanti rimosse sono: \texttt{"Banco"}, \texttt{"Master"}, \texttt{"Picco coppia zero"}, \texttt{"Picco coppia iniziale"}, \texttt{"Media coppia iniziale"}, \texttt{"Velocità 1"}, \texttt{"Picco pressione velocità 2"}, \texttt{"Media pressione velocita 2"}, \texttt{"Picco portata velocità 2"}, \texttt{"Media portata velocità 2"}.}, mostravano una distribuzione eccessivamente sbilanciata verso una sola classe\footnote{È questo il caso di \texttt{"Velocità 2"}, \texttt{"Esito"} e di conseguenza \texttt{"N. Esito"}, \texttt{"Coppia max ciclo"}, \texttt{"Velocità a regime"}.}, erano ridondanti, poco interessanti o erano già state segnalate tali dai fornitori del \textit{dataset}\footnote{Le colonne inutili sono: \texttt{"Codice da Linea"} - identificativo del pezzo -, \texttt{"Media coppia zero"}, \texttt{'Data'} e \texttt{'Ora'}, poiché i dati sono stati raccolti in un arco temporale non uniforme.}.\\
@@ -218,7 +237,7 @@ Per quanto riguarda la prima, la distribuzione è fortemente asimmetrica verso v
 È importante citare che anche fra la media e il picco della coppia in fase finale (100 \textit{rpm}) esista una forte dipendenza lineare positiva ($\sim$0.83). Bisognerà pertanto valutare questa ulteriore collinearità in fase di stima del modello per la previsione del coefficiente.\\
 Al contrario, queste due variabili non presentano un'elevata dipendenza rispetto i dati di pressione e portata: la correlazione rimane sempre ben al di sotto del 20\%. Lo stesso vale per i valori di temperatura.
 
-\subsection{Target: coefficiente di dispersione}
+\subsection{Target: coefficiente di dispersione}\label{Alpha}
 Il coefficiente di dispersione è calcolato con la formula
 \begin{equation}\label{eq}
     \alpha=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}
@@ -614,24 +633,170 @@ Variabile&$Pr(> |t|)$&Coefficiente\\
 \end{tabular}
 \end{table}}\\
 Tutte le variabili sono rilevanti, ma, come visto nel modello 7, la performance ($R^2$) è più scarsa (0.745).
-
-
 \subsection{Tecniche di \textit{shrinkage}}
+Poichè i dati presentano un fortissimo problema di multicollinearità, risulta impossibile includere la totalità delle colonne in un modello di regressione lineare per la previsione del coefficiente $\alpha$, ed è quindi necessario ridurre la matrice del disegno. L'estrazione di un subset ottimale di \textit{feature} può avvenire tramite vari tentativi di selezione manuale - come effettuato nella sezione precedente -, ma tale metodo può essere troppo dispendioso. In alternativa, è possibile eseguire una \textit{feature selection} implicita tramite aggiunta di una componente di penalizzazione alla funzione di regressione. L'applicazione di questo meccanismo di regolarizzazione, ponendo un vincolo al valore dei coefficienti di regressione, contrae le stime $\beta$ e quindi riduce la rilevanza dei candidati esplicativi. In questo modo, le colonne che meno contribuiscono a descrivere la variabilità di $\alpha$, subiscono un'ulteriore riduzione della propria importanza. Qualora la contrazione comportasse l'annullamento di un coefficiente di regressione, allora il predittore associato sarebbe indirettamente scartato dal modello. In questo caso, le tecniche di shrinkage avranno successo se riusciranno a filtrare le poche colonne realmente importanti, eliminando l'informazione ridondante presente nelle distribuzioni eccessivamente correlate.\\
+Sono state adottate due popolari tipologie di regolarizzazione: \textit{Ridge} e \textit{Lasso}.
 \subsubsection{Regressione \textit{Ridge}}
-La regressione \textit{Ridge} si riferisce ad un modello di regressione lineare i cui coefficienti non sono stimati dal metodo dei minimi quadrati (OLS), ma da un altro stimatore, chiamato stimatore \textit{ridge}, che possiede \textit{bias} ma ha una varianza inferiore rispetto allo stimatore OLS.Lo stimatore ridge riduce i coefficienti di regressione, in modo che le variabili, con un contributo minore al risultato, abbiano i loro coefficienti vicini allo zero. Invece di forzarli a essere esattamente zero, essi vengono penalizzati da una costante \textit{lambda} ($\lambda$), costringendoli così a essere piccoli in modo continuo. In questo modo la complessità del modello diminuisce senza eliminare nessuna variabile. Un importante vantaggio della regressione \textit{Ridge} è che si comporta ancora bene, rispetto al normale metodo dei minimi quadrati, in una situazione in cui si hanno molti dati multivariati. Uno svantaggio è invece che include tutti i predittori nel modello finale, a differenza dei metodi di feature selection, che generalmente selezionano un insieme ridotto di variabili tra quelle disponibili. (\textbf{fonte: https://lorenzogovoni.com/tre-tecniche-di-regolarizzazione-ridge-lasso-ed-elastic-net/)}.\\
-Dunque, per uno stimatore ridge, la selezione di un buon valore per $\lambda$ è fondamentale: per trovare il valore ottimale è stata utilizzato un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un valore pari a 0.01.\\
-Nel modello sono state considerate congiuntamente le variabili di Pressione e di Portata, la Temperatura, \textit{Picco Coppia Finale} e \textit{Media Coppia Finale}. I risultati associati a questo modello sono i seguenti:
-\begin{center}
-\includegraphics[scale=0.7]{ridge.png}
-\end{center}
-Si può notare che la variabile $picco\_pressione\_velocita\_1$ (\textit{Picco Press. (140)}) risulta la più rilevante, mentre la \textit{Temperatura} non contribuisce alla previsone del \textit{Coefficiente}. Il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.845.
+La stimatore lineare \textit{Ridge} è formulato come segue:
+\begin{equation}\label{eq}
+    \hat{\beta}^{\lambda}=(X'X+\lambda I_p)^{-1}X'y
+\end{equation}
+dove $\lambda$ è il parametro di regolarizzazione pari alla norma $L_2$, tale per cui:
+\begin{itemize}
+    \item se $\lambda=0$, la soluzione coincide con il quella derivante dal metodo ai minimi quadrati ordinari;
+    \item se $\lambda>0$, si produce una penalizzazione sul punto di minimo della funzione di perdita $D_{Ridge}^{(\beta,\lambda)}$.
+\end{itemize}
+In questo modo, la complessità del modello diminuisce senza eliminare nessuna variabile.\\
+Il valore atteso $\mathbb{E}[\hat{\beta}^{\lambda}]$ si dimostra essere pari a
+\begin{equation}
+   (X'X+\lambda I_p)^{-1}(X'X)\beta\neq\beta 
+\end{equation}
+, dimostrando quindi che $\hat{\beta}^{\lambda}$ è distorto. Tuttavia, nonostante l'introduzione del \textit{bias} appena menzionato, è possibile dimostrare come questa tecnica di \textit{shrinkage}, oltre ad avere l'effetto di risolvere efficacemente la supercollinearità fra i regressori, riesca a produrre, per un'opportuna scelta di $\lambda$, un errore quadratico medio dello stimatore minore rispetto a quello offerto dal metodo OLS.\\
+Dunque, per uno stimatore ridge, la selezione di un buon valore per $\lambda$ è fondamentale: per trovare l'ottimo è stata utilizzato un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un parametro quasi nullo, pari cioè a 0.01. Poichè la penalizzazione applicata è quasi nulla, è possibile dedurre che, nonostante le aspettative, la regolarizzazione offerta da una norma $L_2$ sia quasi inutile. Precisamente, nel modello sono state considerate congiuntamente tutte le variabili originarie - relative a pressione e portata, temperatura, e coppia finale. I risultati ottenuti sono riassunti in Figura 20.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{ridge.png}
+    \label{fig:em}
+    \caption{Stime \textit{Ridge} dei coefficienti di regressione.}
+\end{figure}
+È possibile notare come la variabile "Picco Press. (140)" risulti la più rilevante, ovvero la meno contratta dalla penalizzazione. La ragione risiede, come spiegato in precedenza, nella fortissima dipendenza lineare fra tale regressore e le distribuzioni con cui è stato generato il coefficiente di dispersione. Al contrario, la "Temperatura" non contribuisce alla previsione, e il suo $\beta$ è pertanto annullato. Per il resto, la relativa importanza del resto dei candidati appare nettamente ridimensionata, ad indicare la grande ridondanza informativa all'interno della matrice del disgeno. Infine, il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.845, attestandosi pertanto su un livello accettabile, ma non eccellente.
 \subsubsection{Regressione \textit{Lasso}}
-La regressione Lasso può essere utilizzata come alternativa ai metodi di \textit{feature selection} per eseguire la selezione delle variabili al fine di ridurre la complessità del modello. Riduce i coefficienti di regressione verso lo zero penalizzando il modello di regressione con un termine di penalità lamda ($\lambda$): la penalità ha l’effetto di forzare alcune delle stime dei coefficienti, con un contributo minore al modello, a essere esattamente uguale a zero.
-Come nella regressione \textit{Ridge}, la selezione del valore ottimale di $\lambda$ è stata effettuata utilizzando un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un valore pari a 0.00001. I risultati associati a questo modello sono i seguenti:
-\begin{center}
-\includegraphics[scale=0.7]{lasso.png}
-\end{center}
-L'unica variabile ritenuta importante per la previsione del \textit{Coefficiente} è $picco\_pressione\_velocita\_1$ (\textit{Picco Press. (140)}). Il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.7058.
+Nonostante sia un'ottima soluzione per contrarre la varianza della funzione di regressione, il metodo \textit{Ridge} è, in realtà, raramente in grado di effettuare una vera e propria \textit{feature selection}, ovvero di annullare i coefficienti che moltiplicano le variabili meno rilevanti per descrivere il fenomeno di studio. Questa limitazione deriva dalla scelta di una norma $L_2$ come componente di penalizzazione. La regressione \textit{Lasso} può essere pertanto utilizzata come alternativa ai metodi di \textit{feature selection}, perché, utilizzando una funzione di regolarizzazione non derivabile - norma $L_1$, è in grado di ridurre ulteriormente i coefficienti di regressione verso lo zero. Anche qui, la selezione del valore ottimale di $\lambda$ è stata effettuata utilizzando un metodo di ricerca a griglia (\textit{Grid Search}), ottenendo un parametro ottimo praticamente nullo (0.00001). Le stime \textit{Lasso} dei coefficienti sono rappresentate graficamente in Figura 21.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{lasso.png}
+    \label{fig:em}
+    \caption{Stime \textit{Lasso} dei coefficienti di regressione.}
+\end{figure}
+L'unica variabile ritenuta importante per la previsione di $\alpha$ è sempre il picco di pressione in fase di controllo (140 rpm). Ogni altro candidato è scartato, come conseguenza logica dell'eccessiva dipendenza fra tutte le principali misurazioni che descrivono il processo di produzione delle pompe GP5. L'indice di bontà di adattamento ($R^2$) è scarso, pari a 0.7058.
+\subsection{Regressione Multilevel}
+I \textit{Multilevel Model}, noti anche come gerarchici lineari, sono modelli statistici caratterizzati da parametri che variano su più livelli. Come anticipato nella Sezione \ref{Alpha}, i dati a disposizione - riguardanti principalmente le performance del prodotto - variano a seconda dei sottogruppi di pompe. La regressione \textit{Multilevel} appare quindi perfetta per il fenomeno di studio, permettendo di considerare nel modello finale i fattori contestuali che subentrano nei diversi programmi di produzione, ovvero le differenti relazioni, da gruppo a gruppo, fra la variabile target e i regressori $X$.\\
+Sono stati pertanto costruiti vari modelli multilivello, considerando separatamente le variabili di pressione e portata - sempre con lo scopo di gestire il problema di multicollinearità - , oltre agli altri candidati esplicativi gà menzionati. La variabile di \textit{grouping} "Programma"\footnote{Con "variabile di \textit{grouping}" s'intende la colonna con cui vengono raggruppate le osservazioni, con lo scopo di ottenere una stima gerarchica, ovvero estrarre i diversi vettori dei coefficienti di regressione per ciascun gruppo.}, è indicata nella formulazione del modello con la scrittura "$(1|\textit{Programma})"$\footnote{Il valore 1 prima del simbolo $\mid$ sta ad indicare la stima di un'intercetta.}. 
+\subsubsection{Modelli multilivello con variabili di portata}
+\textbf{Modello 1}:  Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Media Coppia Finale + (1$\mid$Programma)
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&\\
+\textbf{Picco Port. (140)}&$<$2.2e-16 ***\\ 
+\textbf{Media Port. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Picco Port. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Temperatura}&$<$2.2e-16 ***\\
+\textbf{Media Coppia Finale}&$<$2.2e-16 ***\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili risultano statisticamente significative. Il coefficiente di determinazione ($R^2$) associato al modello è elevato, pari a 0.918.
+È possibile misurare la differenza dei gruppi di programma, in termine di diversa funzione di regressione che mette in relazione le variabili indipendenti con $\alpha$, considerando il valore del coefficiente di dispersione, la $Y$, come somma di tre componenti:
+\begin{equation}
+    y_{ij}=\mu+a_j+\varepsilon_{ij}
+\end{equation}
+dove
+\begin{itemize}
+    \item $y_{ij}$ è l'i-esima osservazione nel j-esimo gruppo 
+    \item $\mu$ è interpretabile come valore atteso globale di tutti i dati originari
+    \item $a_j$ è l'effetto casuale che caratterizza tutte le osservazioni di un dato gruppo, interpretabile pertanto come l'influenza che i fattori contestuali hanno sulle misurazioni della classe j, ovvero lo scostamento del gruppo j-esimo rispetto a trend globale
+    \item $\varepsilon_{ij}$ è il rumore casuale proprio della data osservazione.
+\end{itemize}
+Nella stima di un classico modello di regressione lineare, il fattore contestuale $a_j$ è assunto nullo, poichè non viene ipotizzata l'esistenza di una gerarchia. Nel caso di una regressione multilivello, invece, il grado in cui i fattori contestuali comportano dinamiche diverse all'interno dei gruppi è misurato dal rapporto fra la varianza degli effetti casuali $\sigma_a$ e la varianza totale dei dati (come somma di $\sigma_a$ e la varianza del rumore casuale di ogni osservazione $\sigma_{\varepsilon}$:
+\begin{equation}
+    \frac{\sigma_a}{\sigma_a+\sigma_{\varepsilon}}
+\end{equation}
+Pertanto, al crescere di questo indice, cresce la certezza nell'affermare l'esistenza di una gerarchia sistematica all'interno dei dati.\\
+In questo caso, il valore del coefficiente di correlazione intraclasse (ICC), pari a 0.912, conferma l'ipotesi formulata, ovvero che il coefficiente di dispersione $\alpha$ possa essere descritto similmente nell'ambito di ciascun programma e in maniera significativamente diversa tra le varie classi. La presenza di gruppi significativamente diversi rispetto al trend globale, ovvero di classi GP5 che subiscono scostamenti rilevanti a causa dei propri fattori contestuali di produzione, può essere verificata graficamente come in Figura 22.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{multi1.png}
+    \label{fig:em}
+    \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
+\end{figure}
+I punti in tale rappresentazione indicano il valore dell'effetto casuale di ciascun gruppo $a$; se l'intervallo di confidenza attorno all'effetto casuale $a_j$ comprende lo zero - ovvero interseca la linea rossa in Figura -, allora significa che la classe j-esima non subisce uno scostamento significativo rispetto al trend globale, cioè che i propri fattori contestuali non causano la formazione di un cluster di produzione a sé stante. Al contrario, se l'intervallo di confidenza si allontana dallo zero, allora il gruppo può considerarsi parte di una gerarchia sistematica sottostante ai dati. Qui, il numero di cluster di produzione è pari a 8 su 18.
+\textbf{Modello 2}: Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Picco Coppia Finale + (1$\mid$Programma)
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&\\
+\textbf{Picco Port. (140)}&$<$2.2e-16 ***\\ 
+\textbf{Media Port. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Picco Port. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Temperatura}&$<$2.2e-16 ***\\
+\textbf{Picco Coppia Finale}&$<$2.2e-16 ***\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Tutte le variabili risultano statisticamente significative. Il coefficiente di determinazione ($R^2$) associato al modello è pari a 0.921. L'esistenza di una gerarchia nei dati è riconfermata, anche in questo caso, dall'elevato coefficiente di correlazione intraclasse (ICC): 0.915, e dalla presenza di effetti contestuali significativi in 9 cluster, visibili in Figura 23.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{multi2.png}
+    \label{fig:em}
+    \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
+\end{figure}
+\subsubsection{Modelli di previsione con variabili di pressione}
+\textbf{Modello 1}: Coefficiente $\sim$  Picco Press. (140) + Media Press.(2300) + Picco Press. (2300) + Temperatura + Media Coppia Finale + (1$\mid$Programma)
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&\\
+\textbf{Picco Press. (140)}&$<$2.2e-16 ***\\ 
+\textbf{Media Press. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Picco Press. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Temperatura}&0.9759\\
+\textbf{Media Coppia Finale}&0.1177\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+Le variabili \textit{Temperatura} e \textit{Media Coppia Finale} non risultano statisticamente significative e sono dunque scartate. Nonostante il minor numero di predittori, il coefficiente di determinazione ($R^2$) associato al modello è superiore a quanto visto nell'ambito delle misurazioni di portata, pari a 0.939. Il valore del coefficiente di correlazione intraclasse (ICC) è, tuttavia, nettamente inferiore: 0.797. Ciò indica che le relazioni fra le grandezze di pressione - in combinazione con gli altri candidati - e la variabile target $\alpha$ variano in maniera decisamente minore fra le varie classi di pompa rispetto a quanto osservato per quanto concerne la portata. Nonostante ciò, la Figura 24, segnala un numero maggiore di effetti contestuali significativi: 10 su 18.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{multi3.png}
+    \label{fig:em}
+    \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
+\end{figure}
+\textbf{Modello 2}: Coefficiente $\sim$  Picco Press. (140) + Media Press.(2300) + Picco Press. (2300) + Temperatura + Picco Coppia Finale + (1$\mid$Programma)
+{\begin{table}[h] 
+\centering
+\begin{tabular}[t]{lccc}
+\toprule 
+Variabile&$Pr(> |t|)$\\
+\midrule 
+\textbf{Intercetta}&$<$2e-16 ***&\\
+\textbf{Picco Press. (140)}&$<$2.2e-16 ***\\ 
+\textbf{Media Press. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Picco Press. (2300)}&$<$2.2e-16 ***\\ 
+\textbf{Temperatura}&0.6196549\\
+\textbf{Picco Coppia Finale}&0.0001283 ***\\
+\bottomrule 
+\end{tabular}
+\end{table}}\\
+La variabile "Temperatura", in questo preciso caso, non è statisticamente significativa per la previsione. L'indice di bontà di adattamento ($R^2$) è sempre eccellente (0.939), e il coefficiente di correlazione intraclasse (ICC) è ancora moderato (0.797), confermando la presenza di una gerarchia meno sistematica nei dati riguardati la pressione. Anche qui, nonostante il minor livello di varianza intraclasse, possono essere individuati 10 cluster di produzione.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7 \linewidth]{multi4.png}
+    \label{fig:em}
+    \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
+\end{figure}
+\subsection{Conlclusioni sui modelli predittivi}
+Tutti i modelli proposti sono in grado di prevedere il coefficiente di perdita con un'accuratezza accettabile: il minimo valore dell'indice di bontà di adattamento è 0.7058, ottenuto con una regolarizzazione di tipo \textit{Lasso}. Le regressioni penalizzate risentono negativamente di un'eccessiva collinearità della matrice del disegno, e questo viene confermato dal fatto che anche l'$R^2$ prodotto al metodo \textit{Ridge} non sia eccellente: 0.845. Per questa ragione, le tecniche di \textit{shrinkage} sono sconsigliate.\\
+Il modello migliore ($R^2=0.9508$) per la previsione di $\alpha$ consiste nella seguente regressione lineare classica:
+$$\alpha\sim\text{Picco Press. (140) + Media Press.(2300)}+\text{Picco Press. (2300) + Temperatura + Picco Coppia Finale}$$
+ovvero quello basato sulla combinazione delle variabili di pressione, temperatura e picco di coppia finale.
+I modelli Multilevel sono sicuramente quelli da preferire nel caso in cui si voglia tenere in considerazione anche i diversi livelli di Programma.
+La presenza di multicollinearità tra le variabili a disposizione non permette di utilizzare congiuntamente sia le variabili di Portata e Pressione, sia \textit{Media Coppia Finale} e \textit{Picco Coppia Finale} per prevedere il coefficiente di perdita. Inoltre tale fenomeno influisce direttamente sui modelli, provocando spesso un coefficiente di determinazione ($R^2$) elevato, ma variabili poco rilevanti. Dunque per la previsione del \textit{Leakage Coefficient} bisogna trovare il giusto compromesso tra $R^2$ e rilevanza delle variabili. 
+
+CONCLUSIONI MIGLIOR MODELLO
+
+%----------------------------------------------------------------------------------------
+\section*{Codice}
+L'intero codice, implementato con linguaggi \texttt{Python} e \texttt{R}, è disponibile al link: \url{https://github.com/RCrvro/Industry-Lab---Progetto}.
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
