@@ -100,13 +100,13 @@ Nel dettaglio, gli scostamenti interni causati dalla portata in uscita sono clas
     \item distanze di punta, che comprendono il diametro di punta degli ingranaggi e il diametro esterno ed interno della mezzaluna; quest'ultimo, in particolare, si identifica come la distanza della componente \textit{half moon} dalla componente rotante della pompa
     \item spostamento degli ingranaggi e dei cuscinetti interni rispetto alla custodia.
 \end{itemize}
-Riassumendo, durante il test il principale ingranaggio interno ruota eccentricamente all'interno della custodia della pompa, generando una bassa pressione in uscita. Maggiore la reazione a questo flusso uscente, in termini di spostamento delle proprie componenti interne, minore l'indice di prestazione del prodotto, indicato con $\alpha$. La direzione e l'entità di ciascun scostamento può essere intuita dalla seguente Figura:
+Riassumendo, durante il test, il principale ingranaggio interno ruota eccentricamente all'interno della custodia della pompa, generando una bassa pressione in uscita. Maggiore la reazione a questo flusso uscente, in termini di spostamento delle proprie componenti interne, minore l'indice di prestazione del prodotto, indicato con $\alpha$. La direzione e l'entità di ogni scostamento può essere intuita dalla seguente Figura:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9 \linewidth]{flow.png}
     \label{fig:em}
 \end{figure}
-La freccia rosa al centro ("\textit{journal bearing leakage}") indica uno scentramento del più piccolo ingranaggio centrale rispetto alla posizione originaria. Le frecce rossa e viola disegnano rispettivamente lo sfalsamento interno ed esterno della componente superiore definita "a mezza luna" (nell'ambito delle cosiddette distanze di punta). Infine, le due frecce arancioni rappresentano una variazione delle distanze assiali interna ed esterna.\\
+La freccia rosa al centro ("\textit{journal bearing leakage}") indica un movimento del più piccolo ingranaggio centrale rispetto alla posizione originaria. Le frecce rossa e viola disegnano rispettivamente lo sfalsamento interno ed esterno della componente superiore definita "a mezza luna" (nell'ambito delle cosiddette distanze di punta). Infine, le due frecce arancioni rappresentano una variazione delle distanze assiali interna ed esterna.\\
 La produzione GP5 può essere dunque distinta in "classi di coefficiente di perdita", ossia gruppi di pompe che condividono lo stesso \textit{leakage coefficient} $\alpha$, che viene messo in relazione con la pressione e la portata con la seguente formula\footnote{$Q_{GP}$ e $P_{out}$ sono note rispettivamente col nome di \texttt{media\_portata\_velocita\_1}, e \texttt{media\_pressione\_velocita\_1}} verificata sperimentalmente:
 \begin{equation}
     Q_{GP} = Q_{GP,theor} − \alpha \cdot P_{out}
@@ -712,7 +712,7 @@ dove
     \item $a_j$ è l'effetto casuale che caratterizza tutte le osservazioni di un dato gruppo, interpretabile pertanto come l'influenza che i fattori contestuali hanno sulle misurazioni della classe j, ovvero lo scostamento del gruppo j-esimo rispetto a trend globale
     \item $\varepsilon_{ij}$ è il rumore casuale proprio della data osservazione.
 \end{itemize}
-Nella stima di un classico modello di regressione lineare, il fattore contestuale $a_j$ è assunto nullo, poichè non viene ipotizzata l'esistenza di una gerarchia. Nel caso di una regressione multilivello, invece, il grado in cui i fattori contestuali comportano dinamiche diverse all'interno dei gruppi è misurato dal rapporto fra la varianza degli effetti casuali $\sigma_a$ e la varianza totale dei dati (come somma di $\sigma_a$ e la varianza del rumore casuale di ogni osservazione $\sigma_{\varepsilon}$:
+Nella stima di un classico modello di regressione lineare, il fattore contestuale $a_j$ è assunto nullo, poichè non viene ipotizzata l'esistenza di una gerarchia. Nel caso di una regressione multilivello, invece, il grado in cui i fattori contestuali comportano dinamiche diverse all'interno dei gruppi è misurato dal cosiddetto coefficiente di correlazione intraclasse (ICC), che consiste nel rapporto fra la varianza degli effetti casuali $\sigma_a$ e la varianza totale dei dati (come somma di $\sigma_a$ e la varianza del rumore casuale di ogni osservazione $\sigma_{\varepsilon}$):
 \begin{equation}
     \frac{\sigma_a}{\sigma_a+\sigma_{\varepsilon}}
 \end{equation}
@@ -724,7 +724,8 @@ In questo caso, il valore del coefficiente di correlazione intraclasse (ICC), pa
     \label{fig:em}
     \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
 \end{figure}
-I punti in tale rappresentazione indicano il valore dell'effetto casuale di ciascun gruppo $a$; se l'intervallo di confidenza attorno all'effetto casuale $a_j$ comprende lo zero - ovvero interseca la linea rossa in Figura -, allora significa che la classe j-esima non subisce uno scostamento significativo rispetto al trend globale, cioè che i propri fattori contestuali non causano la formazione di un cluster di produzione a sé stante. Al contrario, se l'intervallo di confidenza si allontana dallo zero, allora il gruppo può considerarsi parte di una gerarchia sistematica sottostante ai dati. Qui, il numero di cluster di produzione è pari a 8 su 18.
+I punti in tale rappresentazione indicano il valore dell'effetto casuale di ciascun gruppo $a$; se l'intervallo di confidenza attorno all'effetto casuale $a_j$ comprende lo zero - ovvero interseca la linea rossa in Figura -, allora significa che la classe j-esima non subisce uno scostamento significativo rispetto al trend globale, cioè che i propri fattori contestuali non causano la formazione di un cluster di produzione a sé stante. Al contrario, se l'intervallo di confidenza si allontana dallo zero, allora il gruppo può considerarsi parte di una gerarchia sistematica sottostante ai dati. Qui, il numero di cluster di produzione è pari a 8 su 18.\\
+\\
 \textbf{Modello 2}: Coefficiente $\sim$  Picco Port. (140) + Media Port.(2300) + Picco Port. (2300) + Temperatura + Picco Coppia Finale + (1$\mid$Programma)
 {\begin{table}[h] 
 \centering
