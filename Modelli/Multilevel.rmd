@@ -1,0 +1,155 @@
+---
+title: "Multilevel(2)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Librerie 
+```{r}
+library(pander)
+library(dplyr)
+library(caret)
+library(glmnet)
+library(lme4)
+library(merTools)
+library(car)
+```
+
+```{r}
+df <- read.csv("DbScalato.csv")
+```
+
+#VARIABILI DI PORTATA (+ media_coppia_finale)
+
+```{r}
+mod5 <- lmer(Coefficiente ~ picco_portata_velocita_1 + Temperatura + media_coppia_finale +
+                media_portata_velocita_a_regime + picco_portata_velocita_a_regime 
+              + (1| Programma),df, REML = F)
+
+summary(mod5)
+```
+
+```{r}
+Anova(mod5, type="III",big.mark=",")
+```
+
+```{r}
+performance::icc(mod5)
+```
+
+```{r}
+performance::r2(mod5)
+```
+
+
+```{r}
+randoms <- REsim(mod5, n.sims = 500)
+plotREsim(randoms)
+```
+
+#VARIABILI DI PORTATA (+ picco_coppia_finale)
+```{r}
+mod5_1 <- lmer(Coefficiente ~ picco_portata_velocita_1 + Temperatura + picco_coppia_finale +
+                media_portata_velocita_a_regime + picco_portata_velocita_a_regime 
+              + (1| Programma),df, REML = F)
+
+summary(mod5_1)
+```
+
+```{r}
+Anova(mod5_1, type="III",big.mark=",")
+```
+
+```{r}
+performance::icc(mod5_1)
+```
+
+```{r}
+performance::r2(mod5_1)
+```
+
+
+```{r}
+randoms <- REsim(mod5_1, n.sims = 500)
+plotREsim(randoms)
+```
+
+#VARIABILI DI PRESSIONE (+ media coppia finale)
+```{r}
+mod6 <- lmer(Coefficiente ~ picco_pressione_velocita_1 + Temperatura + media_pressione_velocita_1 + media_coppia_finale + picco_pressione_velocita_a_regime + (1| Programma),df, REML = F)
+
+summary(mod6)
+```
+
+```{r}
+Anova(mod6, type="III",big.mark=",")
+```
+
+In questo caso le variabili $Temperatura$ e $media\_coppia\_finale$ non sono statisticamente significative e quindi vengono eliminate:
+```{r}
+mod6 <- lmer(Coefficiente ~ picco_pressione_velocita_1 + media_pressione_velocita_1 +
+               picco_pressione_velocita_a_regime + (1| Programma),df, REML = F)
+
+summary(mod6)
+```
+
+```{r}
+Anova(mod6, type="III",big.mark=",")
+```
+
+```{r}
+performance::icc(mod6)
+```
+
+```{r}
+performance::r2(mod6)
+```
+
+
+```{r}
+randoms <- REsim(mod6, n.sims = 500)
+plotREsim(randoms)
+```
+
+#VARIABILI DI PRESSIONE (+ picco coppia finale)
+```{r}
+mod6_1 <- lmer(Coefficiente ~ picco_pressione_velocita_1 + Temperatura + media_pressione_velocita_1 +
+                 picco_coppia_finale + picco_pressione_velocita_a_regime + (1| Programma),df, REML = F)
+
+summary(mod6_1)
+```
+
+```{r}
+Anova(mod6_1, type="III",big.mark=",")
+```
+
+La temperatura in questo caso non è significativa, dunque la elimino dal modello:
+```{r}
+mod6_1 <- lmer(Coefficiente ~ picco_pressione_velocita_1 + media_pressione_velocita_1 +
+                 picco_coppia_finale + picco_pressione_velocita_a_regime + (1| Programma),df, REML = F)
+
+summary(mod6_1)
+```
+
+```{r}
+Anova(mod6_1, type="III",big.mark=",")
+```
+
+```{r}
+performance::icc(mod6_1)
+```
+
+
+```{r}
+performance::r2(mod6_1)
+```
+
+
+```{r}
+randoms <- REsim(mod6_1, n.sims = 500)
+plotREsim(randoms)
+```
+

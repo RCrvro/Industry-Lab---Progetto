@@ -1,0 +1,555 @@
+---
+title: "I_LAB(2)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE}
+library(caret)
+library(pander)
+```
+
+
+```{r}
+df <- read.csv("DbScalato.csv")
+```
+
+# Previsione coefficiente attraverso regressione lineare
+Data la presenza di variabili altamente correlate tra di loro, per la previsione del coefficiente si è deciso di tenere separate le variabili di portata e pressione e di considerare solo alcune di esse (quelle con una correlazione <= 81%).  
+Inoltre ad ogni modello viene applicata la k-fold cross validation (k=5).
+
+```{r}
+cv <- trainControl(method = "cv", number = 5)
+```
+
+## Variabili di portata usando media_coppia_finale (selezione solo tra quelle con correlazione <= 80%)
+```{r}
+Mod1 <- train(Coefficiente ~ picco_portata_velocita_1 
+              + media_portata_velocita_a_regime + picco_portata_velocita_a_regime 
+              + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")   
+```
+
+```{r}
+Mod1
+```
+
+```{r}
+summary(Mod1)
+```
+
+
+```{r}
+Mod1$finalModel
+```
+
+Tutte le variabili risultano statisticamente significative. Il livello di significatività più rilevante risulta per le variabili $media\_portata\_velocita\_a\_regime$ (caratterizzata da una relazione negativa con il $Coefficiente$) e $picco\_portata\_velocita\_a\_regime$.
+
+```{r}
+pander(Mod1$results)
+```
+
+### Variabili di portata (selezione picco_portata_velocita_1)
+Provo ora a selezionare solo una variabile di pressione (eliminando, a differenza di sopra, anche quelle con una correlazione <= 81%) per vedere come cambiano i risultati:
+```{r}
+Mod1_1 <- train(Coefficiente ~ picco_portata_velocita_1 + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod1_1
+```
+
+```{r}
+summary(Mod1_1)
+```
+
+```{r}
+Mod1_1$finalModel
+```
+
+```{r}
+pander(Mod1_1$results)
+```
+
+### Variabili di portata (selezione media_portata_velocita_a_regime)
+```{r}
+Mod1_2 <- train(Coefficiente ~ media_portata_velocita_a_regime + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod1_2
+```
+
+```{r}
+summary(Mod1_2)
+```
+
+```{r}
+Mod1_2$finalModel
+```
+
+```{r}
+pander(Mod1_2$results)
+```
+
+### Variabili di portata (selezione picco_portata_velocita_a_regime)
+```{r}
+Mod1_3 <- train(Coefficiente ~ picco_portata_velocita_a_regime 
+              + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod1_3
+```
+
+```{r}
+summary(Mod1_3)
+```
+In questo caso la temperatura non risulta statisticamente significativa.
+
+```{r}
+Mod1_3$finalModel
+```
+
+```{r}
+Mod1_3$results
+```
+
+Provo ad eliminare la temperatura, dato che nell'ultimo modello non risulta significativa:
+```{r}
+Mod1_4 <- train(Coefficiente ~ picco_portata_velocita_a_regime 
+              + media_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod1_4
+```
+
+```{r}
+summary(Mod1_4)
+```
+
+```{r}
+Mod1_4$finalModel
+```
+
+```{r}
+Mod1_4$results
+```
+
+
+## Variabili di pressione (selezione variabili di pressione che hanno una correlazione <=81%)
+```{r}
+Mod2 <- train(Coefficiente ~ picco_pressione_velocita_1 
+              + media_pressione_velocita_a_regime + picco_pressione_velocita_a_regime 
+              + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod2
+```
+
+```{r}
+summary(Mod2)
+```
+
+La variabile $Temperatura$ in questo caso non risulta statisticamente significativa!
+
+```{r}
+Mod2$finalModel
+```
+
+Inoltre le variabili hanno dei coefficienti molto bassi, risultando poco rilevanti.
+
+```{r}
+pander(Mod2$results)
+```
+
+Proseguo eliminando la variabile $Temperatura$ dal modello:
+```{r}
+Mod2 <- train(Coefficiente ~ picco_pressione_velocita_1 
+              + media_pressione_velocita_a_regime + picco_pressione_velocita_a_regime 
+              + media_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod2
+```
+
+```{r}
+summary(Mod2)
+```
+
+Ora tutte le variabili sono statisticamente significative.
+
+```{r}
+Mod2$finalModel
+```
+
+La variabile più rilevante per la previsione del $Coefficiente$ è $picco\_pressione\_velocita\_1$ (caratterizzata da una relazione negativa con il $Coefficiente$ stesso)
+
+```{r}
+pander(Mod2$results)
+```
+
+### Variabili di pressione (selezione picco_pressione_velocita_1)
+```{r}
+Mod2_1 <- train(Coefficiente ~ picco_pressione_velocita_1 + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod2_1
+```
+
+```{r}
+summary(Mod2_1)
+```
+
+```{r}
+Mod2_1$finalModel
+```
+
+```{r}
+Mod2_1$results
+```
+
+### Variabili di pressione (selezione media_pressione_velocita_a_regime)
+```{r}
+Mod2_2 <- train(Coefficiente ~ media_pressione_velocita_a_regime + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod2_2
+```
+
+```{r}
+summary(Mod2_2)
+```
+
+```{r}
+Mod2_2$finalModel
+```
+
+```{r}
+pander(Mod2_2$results)
+```
+
+### Variabili di pressione (selezione picco_pressione_velocita_a_regime)
+
+```{r}
+Mod2_3 <- train(Coefficiente ~  picco_pressione_velocita_a_regime + media_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod2_3
+```
+
+```{r}
+summary(Mod2_3)
+```
+
+```{r}
+Mod2_3$finalModel
+```
+
+```{r}
+pander(Mod2_3$results)
+```
+
+## Variabili di pressione considerando picco_coppia_finale (e tutte le altre con correlazione <=80%)
+```{r}
+Mod3 <- train(Coefficiente ~ picco_pressione_velocita_1 
+              + media_pressione_velocita_a_regime + picco_pressione_velocita_a_regime 
+              + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3
+```
+
+```{r}
+summary(Mod3)
+```
+
+La temperatura non è significativa! La elimino:
+```{r}
+Mod3 <- train(Coefficiente ~ picco_pressione_velocita_1 
+              + media_pressione_velocita_a_regime + picco_pressione_velocita_a_regime 
+              + picco_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3
+```
+
+```{r}
+summary(Mod3)
+```
+
+```{r}
+Mod3$finalModel
+```
+
+```{r}
+pander(Mod3$results)
+```
+
+### Variabili di pressione considerando picco_coppia_finale (e picco_pressione_velocita_1)
+```{r}
+Mod3_1 <- train(Coefficiente ~ picco_pressione_velocita_1  + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3_1
+```
+
+```{r}
+summary(Mod3_1)
+```
+
+```{r}
+Mod3_1$finalModel
+```
+
+```{r}
+pander(Mod3_1$results)
+```
+
+### Variabili di pressione considerando picco_coppia_finale (e media_pressione_velocita_a_regime)
+```{r}
+Mod3_2 <- train(Coefficiente ~  media_pressione_velocita_a_regime + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3_2
+```
+
+```{r}
+summary(Mod3_2)
+```
+
+```{r}
+Mod3_2$finalModel
+```
+
+```{r}
+pander(Mod3_2$results)
+```
+
+Elimino la temperatura in quanto è poco significativa e vedo se cambia qualcosa:
+```{r}
+Mod3_2 <- train(Coefficiente ~  media_pressione_velocita_a_regime + picco_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3_2
+```
+
+```{r}
+summary(Mod3_2)
+```
+
+```{r}
+Mod3_2$finalModel
+```
+
+```{r}
+pander(Mod3_2$results)
+```
+
+### Variabili di pressione considerando picco_coppia_finale (e picco_pressione_velocita_a_regime)
+```{r}
+Mod3_3 <- train(Coefficiente ~  picco_pressione_velocita_a_regime + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod3_3
+```
+
+```{r}
+summary(Mod3_3)
+```
+
+```{r}
+Mod3_3$finalModel
+```
+
+```{r}
+pander(Mod3_3$results)
+```
+
+## Variabili di portata usando picco_coppia_finale (selezione solo tra quelle con correlazione <= 80%)
+```{r}
+Mod4 <- train(Coefficiente ~ picco_portata_velocita_1 
+              + media_portata_velocita_a_regime + picco_portata_velocita_a_regime 
+              + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4
+```
+
+```{r}
+summary(Mod4)
+```
+
+```{r}
+Mod4$finalModel
+```
+
+```{r}
+pander(Mod4$results)
+```
+
+### Variabili di portata usando picco_coppia_finale (selezione solo picco_portata_velocita_1)
+```{r}
+Mod4_1 <- train(Coefficiente ~ picco_portata_velocita_1 + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4_1
+```
+
+```{r}
+summary(Mod4_1)
+```
+
+```{r}
+Mod4_1$finalModel
+```
+
+```{r}
+pander(Mod4_1$results)
+```
+
+### Variabili di portata usando picco_coppia_finale (selezione solo media_portata_velocita_a_regime)
+```{r}
+Mod4_2 <- train(Coefficiente ~ media_portata_velocita_a_regime + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4_2
+```
+
+```{r}
+summary(Mod4_2)
+```
+La temperatura non è significativa! La elimino:
+```{r}
+Mod4_2 <- train(Coefficiente ~ media_portata_velocita_a_regime + picco_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4_2
+```
+
+```{r}
+summary(Mod4_2)
+```
+
+```{r}
+Mod4_2$finalModel
+```
+
+```{r}
+pander(Mod4_2$results)
+```
+
+### Variabili di portata usando picco_coppia_finale (selezione solo picco_portata_velocita_a_regime)
+```{r}
+Mod4_3 <- train(Coefficiente ~ picco_portata_velocita_a_regime + picco_coppia_finale + Temperatura, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4_3
+```
+
+```{r}
+summary(Mod4_3)
+```
+
+Elimino la temperatura in quanto non è significativa
+```{r}
+Mod4_3 <- train(Coefficiente ~ picco_portata_velocita_a_regime + picco_coppia_finale, 
+                     data = df,                        
+                     trControl = cv,              
+                     method = "lm")
+```
+
+```{r}
+Mod4_3
+```
+
+```{r}
+Mod4_3$finalModel
+```
+
+```{r}
+pander(Mod4_3$results)
+```
+
