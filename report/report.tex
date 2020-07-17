@@ -67,7 +67,7 @@
 %	ABSTRACT
 %----------------------------------------------------------------------------------------
 
-\Abstract{L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. Il progetto, dopo un'introduzione tecnica del caso di studio, intende innanzitutto offrire quattro livelli di analisi riguardanti il processo produttivo. Il primo consiste in un'indagine preliminare delle grandezze osservate durante la creazione del pezzo meccanico - categoriche e numeriche -. Verranno mostrate, in particolare, le forti relazioni fra i descrittori relativi alle variabili di pressione e portata. Con lo scopo di estendere lo studio di tali relazioni, verrà dunque presentata un'analisi di correlazione fra tutte le colonne rilevanti presenti all'interno del \textit{database}. Il terzo livello ha implicato un'approfondimento dei complessi legami di correlazione, attraverso la stima di vari modelli di classica regressione lineare, l'utilizzo di tecniche di \textit{shrinkage} - quali \textit{Ridge} e \textit{Lasso} - e modelli misti di tipologia \textit{multilevel}. Infine, l'ultima indagine riguarda i valori anomali, sia univariati che multivariati. Inoltre, il progetto offre una soluzione grafica \textit{real-time} per il monitoraggio delle grandezze del processo produttivo a bassissima latenza e l'individuazione di eventuali \textit{outliers}, e presenta un algoritmo per rilevare eventuali valori scorretti della portata in base al tipo di pompa e alle misurazioni del coefficiente di dispersione e della pressione, oltre a rappresentare la distanza fra le osservazioni e questo limite dinamico nello spazio tridimensionale.} 
+\Abstract{L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicocca, ha messo a disposizione i dati relativi al test della linea di assemblaggio di un particolare tipo di pompe, denominate GP5. Il progetto, dopo un'introduzione tecnica del caso di studio, intende innanzitutto offrire quattro livelli di analisi riguardanti il processo produttivo. Il primo consiste in un'indagine preliminare delle grandezze osservate durante la creazione del pezzo meccanico - categoriche e numeriche -. Verranno mostrate, in particolare, le forti relazioni fra i descrittori relativi alle variabili di pressione e portata. Con lo scopo di estendere lo studio di tali relazioni, verrà dunque presentata un'analisi di correlazione fra tutte le colonne rilevanti presenti all'interno del \textit{database}. Il terzo livello ha implicato un approfondimento dei complessi legami di correlazione, attraverso la stima di vari modelli di classica regressione lineare, l'utilizzo di tecniche di \textit{shrinkage} - quali \textit{Ridge} e \textit{Lasso} - e modelli misti di tipologia \textit{multilevel}. Infine, l'ultima indagine riguarda i valori anomali, sia univariati che multivariati. Inoltre, il progetto offre una soluzione grafica \textit{real-time} per il monitoraggio delle grandezze del processo produttivo a bassissima latenza e l'individuazione di eventuali \textit{outliers}, e presenta un algoritmo per rilevare eventuali valori scorretti della portata in base al tipo di pompa e alle misurazioni del coefficiente di dispersione e della pressione, oltre a rappresentare la distanza fra le osservazioni e questo limite dinamico nello spazio tridimensionale.} 
 
 %----------------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ L'azienda Bosch, in collaborazione con l'Università degli Studi Di Milano Bicoc
 La produzione di ogni pezzo dipende da alcune principali grandezze: 
 \begin{itemize}
     \item $Q_{GP}$, ovvero la portata attuale del prodotto misurata tramite apposito trasduttore in litri all'ora [L/h]
-    \item $Q_{GP,theor}$, la portata teorica del prodotto, nota a priori (108.36 [L/h]) e fornita dall’ufficio \textit{R\&D}
+    \item $Q_{GP,theor}$, la portata teorica del prodotto, nota a priori\footnote{Più precisamente, la portata teorica $Q_{GP,theor}$ è pari a 108.36 l/h in corrispondenza della fase di controllo (140 rpm) e 1780.2 l/h durante la fase a regime (2300 rpm)} e fornita dall’ufficio \textit{R\&D}
     \item $P_{out}$ è la pressione in uscita misurata tramite apposito trasduttore [bar]\footnote{Registrara nel database come \texttt{media\_pressione\_velocita\_1}.}.
     \item $\alpha$, ovvero il coefficiente di perdita (\textit{leakage coefficient}), misurato in [(l/h)/bar], che riassume la prestazione delle pompe GP5: essendo direttamente proporzionale agli scostamenti meccanici interni, descrive la sensibilità del prodotto alle variazioni di pressione in uscita; se questo coefficiente di flusso è basso, la portata della pompa è meno influenzata dalla \textit{outlet pression}, e il pezzo è più robusto e affidabile.
 \end{itemize}
@@ -100,7 +100,7 @@ Nel dettaglio, gli scostamenti interni causati dalla portata in uscita sono clas
     \item distanze di punta, che comprendono il diametro di punta degli ingranaggi e il diametro esterno ed interno della mezzaluna; quest'ultimo, in particolare, si identifica come la distanza della componente \textit{half moon} dalla componente rotante della pompa
     \item spostamento degli ingranaggi e dei cuscinetti interni rispetto alla custodia.
 \end{itemize}
-Riassumendo, durante il test, il principale ingranaggio interno ruota eccentricamente all'interno della custodia della pompa, generando una bassa pressione in uscita. Maggiore la reazione a questo flusso uscente, in termini di spostamento delle proprie componenti interne, minore l'indice di prestazione del prodotto, indicato con $\alpha$. La direzione e l'entità di ogni scostamento può essere intuita dalla seguente Figura:
+Riassumendo, durante il test, il principale ingranaggio interno ruota eccentricamente all'interno della custodia della pompa, generando una bassa pressione in uscita. Maggiore la reazione a questo flusso uscente, in termini di spostamento delle proprie componenti interne, maggiore l'indice di prestazione del prodotto, indicato con $\alpha$. La direzione e l'entità di ogni scostamento può essere intuita dalla seguente Figura:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9 \linewidth]{flow.png}
@@ -108,10 +108,10 @@ Riassumendo, durante il test, il principale ingranaggio interno ruota eccentrica
 \end{figure}
 La freccia rosa al centro ("\textit{journal bearing leakage}") indica un movimento del più piccolo ingranaggio centrale rispetto alla posizione originaria. Le frecce rossa e viola disegnano rispettivamente lo sfalsamento interno ed esterno della componente superiore definita "a mezza luna" (nell'ambito delle cosiddette distanze di punta). Infine, le due frecce arancioni rappresentano una variazione delle distanze assiali interna ed esterna.\\
 La produzione GP5 può essere dunque distinta in "classi di coefficiente di perdita", ossia gruppi di pompe che condividono lo stesso \textit{leakage coefficient} $\alpha$, che viene messo in relazione con la pressione e la portata con la seguente formula\footnote{$Q_{GP}$ e $P_{out}$ sono note rispettivamente col nome di \texttt{media\_portata\_velocita\_1}, e \texttt{media\_pressione\_velocita\_1}} verificata sperimentalmente:
-\begin{equation}
-    Q_{GP} = Q_{GP,theor} − \alpha \cdot P_{out}
+\begin{equation}\label{TL}
+    Q_{GP} = Q_{GP,theor} {\text -} \alpha \cdot P_{out}
 \end{equation}
-L'andamento del coefficiente di perdita, poiché fondamentale per il monitoraggio del prodotto, verrà analizzato non soltanto al variare del programma selezionato o della fase impostata, ma soprattutto in relazione alle altre misurazioni estratte durante il circuito pneumatico di prova. Nel dettaglio, a ciascuna delle due fasi di test sono associate interessanti osservazioni numeriche relative a picco e media della \textit{outlet pression}, picco e media della portata in uscita, picco e media della coppia in fase finale - ovvero in corrispondenza di una velocità di 100 rotazioni al minuto -, e temperatura di prova del liquido con cui viene lubrificata la pompa per la rotazione.
+L'andamento del coefficiente di perdita, poiché fondamentale per il monitoraggio del prodotto, verrà analizzato non soltanto al variare del programma selezionato o della fase impostata, ma soprattutto in relazione alle altre misurazioni estratte durante il circuito pneumatico di prova.Nel dettaglio, a ciascuna delle due fasi di test sono associate interessanti osservazioni numeriche relative a picco e media della \textit{outlet pression}, picco e media della portata in uscita, picco e media della coppia in fase finale - ovvero in corrispondenza di una velocità di 100 rotazioni al minuto -, e temperatura di prova del liquido con cui viene lubrificata la pompa per la rotazione.
 \\
 Altre variabili significative sono presenti nel \textit{database} fornito, tra cui il codice dei turni in cui è suddivisa la linea di lavoro, ora e data del \textit{record}, descrizione dell'esito finale della prova, e il \textit{Programma}, corrispondente alla classe di prodotto GP5, che è raggruppabile nelle due macro-categorie \textit{Daimler (DAI} e Standard (STD)\footnote{La macro-categoria \textit{Daimler} è descritta dal codice programma \texttt{18\_GP5\_910\_CW}, mentre la tipologia Standard comprende tutti gli altri codici programma}.\\
 \\
@@ -119,7 +119,7 @@ A partire da tale caso di studio, sono stati proposti tre \textit{task}:
 \begin{enumerate}
     \item analisi preliminare delle grandezze del processo produttivo e implementazione di un sistema di monitoraggio \textit{real-time} del coefficiente di perdita (Sezioni \ref{prem} e \ref{rt})
     \item definizione, dato un intervallo del coefficiente di perdita, di un limite dinamico della portata $Q_{GP}$ rispetto alla pressione in uscita (Sezione \ref{lim})
-    \item stima di un modello efficace per la previsione del coefficiente di perdita $\alpha$ (Sezione \ref{Mod}).
+    \item stima di un modello efficace per la previsione del coefficiente di perdita $\alpha$ (Sezione \ref{Mod})\footnote{I modelli verranno stimati considerando come variabile target solo $\alpha$ in fase di controllo, per ragioni espresse successivamente nel \textit{report}.}.
 \end{enumerate}
 %------------------------------------------------
 \section{Data Preparation}
@@ -218,7 +218,8 @@ I comportamenti mostrati dalle osservazioni relative alla pressione della pompa 
     \label{fig:em}
     \caption{Distribuzioni delle grandezze relative alla portata, in corrispondenza della velocità "1" e a regime, appaiate nell'ambito della stessa misurazione. Poichè la differenza era troppo grande per permettere una visualizzazione comprensibile, è stato necessario adottare una scala logaritmica.}
 \end{figure}
-\\
+
+\subsubsection{Correlazioni fra pressione e portata}\label{boh}
 Infine, è interessante notare come le colonne relative alla pressione e alla portata condividano dipendenze lineari con grado molto elevato, come visibile in Figura 8: la correlazione assoluta media raggiunge addirittura un livello di $\sim$0.95, con un minimo di 0.79 - tra i picchi di portata misurati fra le due velocità - e 8 collinearità perfette. In particolare, oltre alla quasi identicità delle distribuzioni nell'ambito della stessa grandezza - menzionata in precedenza -, appaiono interessanti le seguenti dipendenze lineari:
 \begin{itemize}
     \item picco pressione e picco portata, entrambi alla velocità di 140 \textit{r.p.m.} ($\sim$0.91)
@@ -229,7 +230,7 @@ Infine, è interessante notare come le colonne relative alla pressione e alla po
     \item picco pressione e picco portata a velocità di regime, sempre una correlazione perfetta
     \item picco portata e media pressione a velocità di regime: perfetta collinearità.
 \end{itemize}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1 \linewidth]{corrpp.png}
     \label{fig:em}
@@ -248,17 +249,21 @@ Per quanto riguarda la prima, la distribuzione è fortemente asimmetrica verso v
 È importante citare che anche fra la media e il picco della coppia in fase finale (100 \textit{rpm}) esista una forte dipendenza lineare positiva ($\sim$0.83). Bisognerà pertanto valutare questa ulteriore collinearità in fase di stima del modello per la previsione del coefficiente.\\
 Al contrario, queste due variabili non presentano un'elevata dipendenza rispetto i dati di pressione e portata: la correlazione rimane sempre ben al di sotto del 20\%. Lo stesso vale per i valori di temperatura.
 
-\subsection{Target: coefficiente di dispersione}\label{Alpha}
-Il coefficiente di dispersione è calcolato con la formula
+\subsection[Target: coefficiente di dispersione]{Target: coefficiente di dispersione\protect\footnote{Le analisi presentate riguardano solamente i valori del coefficiente di perdita osservati a 140 rpm, per le ragioni espresse in questa sezione.}}\label{Alpha}
+Il coefficiente di dispersione è calcolato, in base alla fase implementata, con le seguenti formule:
 \begin{equation}\label{eq}
-    \alpha=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}
+    \alpha_{140}=\frac{108.36-\text{Media portata (@140)}}{\text{Media pressione (@140)}}
 \end{equation}
-e i valori sono compresi in un range molto ampio, fra un minimo di $\sim$5.7 e un massimo di $\sim$817, con media e mediana rispettivamente pari a $\sim$27.8 e $\sim$29.43. La distribuzione è sbilanciata verso alti valori, come visibile in Figura 10.
+\begin{equation}\label{eqaltra}
+    \alpha_{2300}=\frac{1780.2-\text{Media portata (@2300)}}{\text{Media pressione (@2300)}}
+\end{equation}
+Le successive analisi sul coefficiente di dispersione andranno a considerare solamente la distribuzione di $\alpha$ in corrispondenza di 140 rpm (equazione \ref{eq}), poiché, come visto nella Sezione \ref{boh}, le grandezze relative alle due fasi, benché separate, appaiono spesso generate dalla stessa distribuzione. Come conseguenza di ciò, effettuare un'analisi anche sulla distribuzione osservata in corrispondenza della fase a regime rivelerebbe comportamenti analoghi.\\
+Dunque, i valori osservati nella fase di controllo sono compresi in un range molto ampio, fra un minimo di $\sim$5.7 e un massimo di $\sim$817, con media e mediana rispettivamente pari a $\sim$27.8 e $\sim$29.43. La distribuzione è sbilanciata verso alti valori, come visibile in Figura 10.
 \begin{figure}[h]
     \centering
     \includegraphics[height=100,width=1 \linewidth]{coeff.png}
     \label{fig:em}
-    \caption{Distribuzione del coefficiente di \textit{leakage} in scala logaritmica e originale.}
+    \caption{Distribuzione del coefficiente di \textit{leakage} durante la fase di controllo (140 rpm), in scala logaritmica e originale.}
 \end{figure}
 In Figura, è possibile notare una certa concentrazione dei \textit{records} in un intervallo di ampiezza ridotta attorno alla mediana. Questa considerazione è appurata dal basso coefficiente di variazione: $\sim$0.26.\\
 Poiché il coefficiente di \textit{leakage} è indice della performance della pompa prodotta, è ragionevole supporre che ad ogni classe GP5, come conseguenza della differenza fra le proprie caratteristiche di progettazione e quelle delle altre categorie, si associ un diverso livello di prestazione - quindi un diverso \textit{range} di $\alpha$. Da un'analisi grafica superficiale (Figura 11), questa assunzione appare corretta: le distribuzioni del coefficiente, raggruppate per "Programma", appaiono spesso distanti, facendo ipotizzare l'esistenza di una notevole variabilità fra i gruppi, potenzialmente interessante per la costruzione di un modello predittivo. 
@@ -266,11 +271,11 @@ Poiché il coefficiente di \textit{leakage} è indice della performance della po
     \centering
     \includegraphics[width=1 \linewidth]{Programma.png}
     \label{fig:em}
-    \caption{Distribuzioni del coefficiente $\alpha$ raggruppate per classe GP5 ("Programma").}
+    \caption{Distribuzioni del coefficiente $\alpha$ durante la fase di controllo (140 rpm) raggruppate per classe GP5 ("Programma").}
 \end{figure}
 Inoltre, è possibile che tale varianza fra le classi GP5 si manifesti non solo fra i livelli di performance, ma anche fra i coefficienti di regressione delle variabili esplicative scelte. In altre parole, è probabile che la selezione di un determinato Programma comporti una relazione significativamente diversa - rispetto agli altri tipi di pompe - fra $\alpha$ e le altre grandezze. Se questa ipotesi venisse verificata, allora si potrebbe dimostrare quanto il contributo delle varie parti coinvolte nel processo - monitorate attraverso la misurazione dei valori registrati nelle colonne nel database - si modifichi, influenzato dagli specifici fattori contestuali relativi alla diversa progettazione di ogni classe di pompa. In questo modo, sarebbe anche possibile ottimizzare il valore del coefficiente $\alpha$, monitorando questi fattori in maniera differente a seconda del Programma. Pertanto, con lo scopo di analizzare in maniera più approfondita la variabilità della funzione di regressione lineare di $\alpha$ in base al tipo di pompa in produzione, si è scelto di stimare una tipologia di modello misto adatta ai dati influenzati da effetti contestuali: il cosiddetto \textit{multilevel model}. Tale approfondimento è trattato nella Sezione \ref{Mod}.\\
-Oltre alla relazione con "Programma", il coefficiente di dispersione mostra un collinearità molto elevata con molte altre colonne. Tralasciando le distribuzioni da cui $\alpha$ è stato generato (equazione \ref{eq}), le variabili con cui è più fortemente correlato sono relative alla pressione a regime ("Picco pressione velocita a regime" al 75\% e "Media pressione velocita a regime" al 74.6\%) e al picco di portata durante la stessa fase (74\%). Normalmente, queste dovrebbero essere quindi incluse nel \textit{subset} dei candidati esplicativi per la regressione lineare di $\alpha$, poiché potrebbero contribuire ad una stima accurata. Tuttavia, come si vedrà nella Sezione \ref{Mod}, la \textit{feature selection} sarà un'operazione difficile, a causa della multicollinearità rilevata fra le misurazioni di portata e pressione - in entrambe le fasi - e del conseguente rischio di ottenere una matrice del disegno quasi-singolare o invertibile. Ad esempio, se si volessero includere entrambe le variabili di pressione in fase di regime, la penalizzazione alla correttezza del modello non deriverebbe soltanto dalla loro reciproca collinearità, bensì anche dalla loro dipendenza lineare con le colonne utilizzate per calcolare $\alpha$.\\
-La correlazione mostrata da $\alpha$ rispetto a "Media coppia finale" appare moderata (16.9\%), e "Picco coppia finale" ha una dipendenza lineare pari a circa il 7\%. È necessario ricordare che anche fra queste due grandezze esiste una collinearità rischiosa, la quale, nel caso in cui esse venissero incluse assieme nel modello, finirebbe per distorcere i coefficienti di regressione. Infine, la correlazione rispetto alla temperatura è ridotta: -6.9\%.\\
+Oltre alla relazione con "Programma", il coefficiente di dispersione mostra un collinearità molto elevata con molte altre colonne. Tralasciando le distribuzioni da cui $\alpha_{140}$ è stato generato (equazione \ref{eq}), le variabili con cui è più fortemente correlato sono relative alla pressione a regime ("Picco pressione velocita a regime" al 75\% e "Media pressione velocita a regime" al 74.6\%) e al picco di portata durante la stessa fase (74\%). Normalmente, queste dovrebbero essere quindi incluse nel \textit{subset} dei candidati esplicativi per la regressione lineare di $\alpha$, poiché potrebbero contribuire ad una stima accurata. Tuttavia, come si vedrà nella Sezione \ref{Mod}, la \textit{feature selection} sarà un'operazione difficile, a causa della multicollinearità rilevata fra le misurazioni di portata e pressione - in entrambe le fasi - e del conseguente rischio di ottenere una matrice del disegno quasi-singolare o invertibile. Ad esempio, se si volessero includere entrambe le variabili di pressione in fase di regime, la penalizzazione alla correttezza del modello non deriverebbe soltanto dalla loro reciproca collinearità, bensì anche dalla loro dipendenza lineare con le colonne utilizzate per calcolare $\alpha$.\\
+La correlazione mostrata da $\alpha_{140}$ rispetto a "Media coppia finale" appare moderata (16.9\%), e "Picco coppia finale" ha una dipendenza lineare pari a circa il 7\%. È necessario ricordare che anche fra queste due grandezze esiste una collinearità rischiosa, la quale, nel caso in cui esse venissero incluse assieme nel modello, finirebbe per distorcere i coefficienti di regressione. Infine, la correlazione rispetto alla temperatura è ridotta: -6.9\%.\\
 In seguito, poiché le osservazioni erano corredate da dati temporali relativi alla data - giorno, mese e anno - e all'orario, si è proceduto a verificare la possibilità di estrarre eventuali trend temporali. Tuttavia, le misurazioni appaiono cronologicamente disomogenee su due livelli. Innanzitutto, i \textit{record} nono sono stati forniti con coerenza temporale per quanto riguarda l'anno (Figura 12). 
 \begin{figure}[h]
     \centering
@@ -283,7 +288,7 @@ In ogni caso, non è comunque visibile alcuna differenza significativa fra le di
     \centering
     \includegraphics[width=1 \linewidth]{anno1.png}
     \label{fig:em}
-    \caption{Distribuzioni del coefficiente $\alpha$ raggruppate per anno.}
+    \caption{Distribuzioni del coefficiente $\alpha_{140}$ raggruppate per anno.}
 \end{figure}
 \\
 Neppure per quanto riguarda il mese, le registrazioni sono omogenee, come visibile in Figura 14.
@@ -294,28 +299,28 @@ Neppure per quanto riguarda il mese, le registrazioni sono omogenee, come visibi
     \caption{Frequenza delle misurazioni per mese. I dati non solo non sono stati forniti in maniera omogenea, ma i primi 4 mesi sono addirittura mancanti, e maggio non riporta quasi osservazioni.}
 \end{figure}
 \\
-Eppure, nonostante dalla collezione dei dati possa sembrare impossibile estrarre una certa periodicità per i motivi appena spiegati, l'andamento del coefficiente di dispersione è inaspettatamente armonico (Figura 15).
+Eppure, nonostante dalla collezione dei dati possa sembrare impossibile estrarre una certa periodicità per i motivi appena spiegati, l'andamento del coefficiente di dispersione $\alpha$ è inaspettatamente armonico (Figura 15).
 \begin{figure}[h]
     \centering
     \includegraphics[width=1 \linewidth]{anni.png}
     \label{fig:em}
-    \caption{Andamento del coefficiente di dispersione $\alpha$ per anno.}
+    \caption{Andamento del coefficiente di dispersione $\alpha_{140}$ per anno.}
 \end{figure}
-Tuttavia, è sufficiente eseguire un clustering grafico dei punti in base al programma di appartenenza per dedurre la motivazione di tale apparente periodicità: essa non deriva da un'autocorrelazione temporale fra i valori del coefficiente, bensì dall'ordine con cui è stato scelto di effettuare le misurazioni sui diversi gruppi GP5, che, come si è visto in precedenza, hanno distribuzioni differenti. L'andamento, perciò, appare generato da una sinusoide solamente perché le osservazioni alternano classi di pompa con performance elevate a categorie con un $\alpha$ minore. Quanto detto è evidente in Figura 16.
+Tuttavia, è sufficiente eseguire un clustering grafico dei punti in base al programma di appartenenza per dedurre la motivazione di tale apparente periodicità: essa non deriva da un'autocorrelazione temporale fra i valori del coefficiente, bensì dall'ordine con cui si è scelto di effettuare le misurazioni sui diversi gruppi GP5, che, come si è visto in precedenza, hanno distribuzioni differenti. L'andamento, perciò, appare generato da una sinusoide solamente perché le osservazioni alternano classi di pompa con $\alpha$ elevati a categorie con un valore minore. Quanto detto è evidente in Figura 16.
 \begin{figure}[h]
     \centering
     \includegraphics[width=1 \linewidth]{Cluster.png}
     \label{fig:em}
-    \caption{Andamento del coefficiente di dispersione $\alpha$ durante l'anno 2016, clusterizzato in base alla variabile "Programma". Il colore rosso indica la tiplogia di pompa \textit{Daimler} - la più popolosa -, mentre gli altri colori sono associati alle sottocategorie Standard.}
+    \caption{Andamento del coefficiente di dispersione $\alpha_{140}$ durante l'anno 2016, clusterizzato in base alla variabile "Programma". Il colore rosso indica la tiplogia di pompa \textit{Daimler} - la più popolosa -, mentre gli altri colori sono associati alle sottocategorie Standard.}
 \end{figure}
 
 \subsection{\textit{Outliers Detection}}
-L'ultima fase di analisi preliminare consiste nell'identificazione degli \textit{outliers}. Grazie ad essa, è possibile, in una fase di ottimizzazione della produzione, ricostruire il trend del processo, individuare le anomalie non segnalate dalla variabile "Esito" ed inferire eventuali fattori in grado di causarle. Innanzitutto, si è proceduto ad estrarre gli \textit{outliers} univariati all'interno della distribuzione del coefficiente di dispersione $\alpha$. Per farlo, poichè è stato verificato che tale distribuzione non fosse di tipo Normale, è stato applicato il metodo non parametrico della distanza interquartile, segnalando pertanto i punti inferiori a k volte il primo quartile e superiori a k volte il terzo quartile, con $k = 1.5$. È stato appurato che queste anomalie non dipendono da un particolare programma\footnote{Le anomalie sono presenti sia in corrispondenza della categoria \textit{Daimler} sia Standard.}, né si verificano in particolari anni o mesi.
+L'ultima fase di analisi preliminare consiste nell'identificazione degli \textit{outliers}. Grazie ad essa, è possibile, in una fase di ottimizzazione della produzione, ricostruire il trend del processo, individuare le anomalie non segnalate dalla variabile "Esito" ed inferire eventuali fattori in grado di causarle. Innanzitutto, si è proceduto ad estrarre gli \textit{outliers} univariati all'interno della distribuzione del coefficiente di dispersione $\alpha_{140}$. Per farlo, poichè è stato verificato che tale distribuzione non fosse di tipo Normale, è stato applicato il metodo non parametrico della distanza interquartile, segnalando pertanto i punti inferiori a k volte il primo quartile e superiori a k volte il terzo quartile, con $k = 1.5$. È stato appurato che queste anomalie non dipendono da un particolare programma\footnote{Le anomalie sono presenti sia in corrispondenza della categoria \textit{Daimler} sia Standard.}, né si verificano in particolari anni o mesi.
 \begin{figure}[h]
     \centering
     \includegraphics[width=1 \linewidth]{out.png}
     \label{fig:em}
-    \caption{Identificazione degli outlier univariati all'interno della distribuzione del coefficiente di dispersione.}
+    \caption{Identificazione degli outlier univariati all'interno della distribuzione del coefficiente di dispersione selezionato.}
 \end{figure}
 \\
 Si è successivamente proceduto ad estrarre \textit{outlier} multivariati grazie all'algoritmo \textit{Local Outlier Factor} (LOF), basato sul calcolo delle deviazioni locali di ogni punto dal proprio vicinato. In questo caso, i valori anomali individuati rappresentano un porzione molto grande del database (75\%) e prescindono, come in precedenza, da particolari condizioni o programmi. Questa elevata quantità può dipendere dall'incidenza che gli specifici fattori contestuali di progettazione hanno sulle varie distribuzioni, elevando il grado di variabilità nell'andamento globale, così come dall'alternanza di fasi diverse nel processo. Sarebbe pertanto più utile applicare l'algoritmo di \textit{anomaly detection} separatamente in corrispondenza della cosiddetta velocità 1 (140rpm) e della fase di regime, e su ciascuna classe GP5.
@@ -338,13 +343,13 @@ Nel video, sul lato destro dello schermo, sono visibili quattro pagine del termi
 L'applicazione è programmata per la segnalazione di eventuali errori, che possono essere esaminati cliccando l'icona blu nell'angolo inferiore destro della pagina \textit{Web}. 
 %------------------------------------------------
 \section{Limite dinamico di portata}\label{lim}
-Poiché la \textit{performance} della pompa GP5 dipende strettamente dal proprio valore di portata in uscita, è necessario controllare che tale misurazione non scenda al di sotto di una determinata soglia, variabile a seconda della macro-categoria selezionata: \textit{Daimler} o Standard\footnote{I valori corretti di portata in uscita per la pompa \textit{Daimler} sono compresi fra 45.86 e 63.36. Per quanto riguarda la categoria Standard, gli estremi considerati sono 57.36 e 75.36.}. Oltre al tipo di "programma", però, tale grandezza condivide una relazione matematica con le variabili del coefficiente di \textit{leakage} $\alpha$ e della pressione (equazione \ref{eq}). Pertanto, il processo produttivo necessita di un monitoraggio dei valori di portata in uscita rispetto alle colonne menzionate. A tal proposito, oltre ad un algoritmo che calcoli, a partire da $\alpha$ e pressione, la portata in uscita e valuti se tale misurazione rientra nel \textit{range} definito dalla miglior\footnote{La regione ammissibile viene limitata superiormente perché eventuali valori oltre il migliore registrato potrebbero derivare da anomalie del pezzo prodotto.} e peggior osservazione in corrispondenza della categoria GP5, è possibile rappresentare graficamente tale limite dinamico come una regione ammissibile all'interno di uno spazio tridimensionale, e osservare la differenza fra il piano e una data misurazione. In questo modo, è possibile monitorare già graficamente la presenza di eventuali anomalie, e si è in grado di valutare visivamente la distanza dai comportamenti tipici del processo produttivo.\\
-È disponibile una demo dell'algoritmo di rappresentazione grafica del limite dinamico di portata al link \href{https://www.youtube.com/watch?v=cxHw8cPm-Ek}{\textbf{\texttt{youtu.be/cxH}}}: date in input le coordinate di $\alpha$ e pressione, viene generata la regione ammissibile prima descritta (in blu) e indicato il punto relativo all'osservazione. La regione critica si modifica a seconda della categoria di pompa, e il colore del punto varia in base alla correttezza dell'osservazione fornita in input: se essa rientra nel limite indicato per la data classe GP5, il punto è rappresentato in verde (Figura 18), altrimenti in rosso (Figura 19).
+Poiché la \textit{performance} della pompa GP5 dipende strettamente dal proprio valore di portata in uscita, è necessario controllare che tale misurazione non scenda al di sotto di una determinata soglia, variabile a seconda della macro-categoria selezionata: \textit{Daimler} o Standard\footnote{Per quanto riguarda la fase di controllo, i valori corretti di portata in uscita per la pompa \textit{Daimler} sono compresi fra 45.86 e 63.36, mentre, per la categoria Standard, gli estremi considerati sono 57.36 e 75.36. Durante la fase di regime, invece, gli estremi della categoria \textit{Daimler} sono 1717.70 e 1735.2, e i valori corretti delle pompe Standard sono compresi fra 1729.2 e 1747.2}. Oltre al tipo di "programma", però, tale grandezza condivide una relazione matematica con le variabili del coefficiente di \textit{leakage} $\alpha$ e della pressione (equazione \ref{TL}). Pertanto, il processo produttivo necessita di un monitoraggio dei valori di portata in uscita rispetto alle colonne menzionate. A tal proposito, oltre ad un algoritmo che calcoli, a partire da $\alpha$ e pressione, la portata in uscita e valuti se tale misurazione rientra nel \textit{range} definito dalla miglior\footnote{La regione ammissibile viene limitata superiormente perché eventuali valori oltre il migliore registrato potrebbero derivare da anomalie del pezzo prodotto.} e peggior osservazione in corrispondenza della categoria GP5, è possibile rappresentare graficamente tale limite dinamico come una regione ammissibile all'interno di uno spazio tridimensionale, e osservare la differenza fra il piano e una data misurazione. In questo modo, è possibile monitorare già graficamente la presenza di eventuali anomalie, e si è in grado di valutare visivamente la distanza dai comportamenti tipici del processo produttivo.\\
+È disponibile una demo dell'algoritmo di rappresentazione grafica del limite dinamico di portata - relativo alla fase di controllo (140rpm) - al link \href{https://www.youtube.com/watch?v=cxHw8cPm-Ek}{\textbf{\texttt{youtu.be/cxH}}}: date in input le coordinate di $\alpha_{140}$ e pressione, viene generata la regione ammissibile prima descritta (in blu) e indicato il punto relativo all'osservazione. La regione critica si modifica a seconda della categoria di pompa, e il colore del punto varia in base alla correttezza dell'osservazione fornita in input: se essa rientra nel limite indicato per la data classe GP5, il punto è rappresentato in verde (Figura 18), altrimenti in rosso (Figura 19).
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9 \linewidth]{STD.png}
     \label{fig:em}
-    \caption{Il punto osservato è compreso nella regione ammissibile. Ciò significa che i valori di coefficiente di dispersione, pressione e soprattutto portata - in funzione di essi - sono da considerarsi regolari. Il punto è pertanto colorato in verde.}
+    \caption{Il punto osservato è compreso nella regione ammissibile. Ciò significa che i valori di coefficiente di dispersione $\alpha_{140}$, pressione e soprattutto portata - in funzione di essi - sono da considerarsi regolari. Il punto è pertanto colorato in verde.}
 \end{figure}
 \begin{figure}[h]
     \centering
@@ -360,6 +365,7 @@ La previsione del coefficiente di perdita $\alpha$ (\textit{leakage coefficient}
     \item Tecniche di \textit{shrinkage}: regressione \textit{Ridge} e \textit{Lasso}
     \item Modello misto: regressione \textit{multilevel}
 \end{enumerate}
+Tutti i seguenti modelli considerano come variabile target il coefficiente $\alpha_{140}$, ovvero le osservazioni relative alla fase di controllo. Il \textit{set} di regressori da cui i vari modelli sono stati generati comprende, però, anche le grandezze relative alla fase a regime. Le due fasi si rivelano infatti strettamente connesse, in quanto sono consecutive all'interno del circuito pneumatico di prova, ed è perciò ragionevole supporre che esista un legame fra i rispettivi risultati. L'evidenza empirica di questo fenomeno viene rilevata nel già citato elevato grado di correlazione lineare fra le colonne (Sezione \ref{boh}).  
 \subsection{Modelli OLS}
 La regressione lineare rappresenta un metodo di stima del valore atteso condizionato di una variabile - dipendente (o endogena) -, dati i valori di altre variabili indipendenti (o esogene), assumendo pertanto l'esistenza di una relazione lineare tra le $X$ e
 la variabile target $Y$. La formulazione è rappresentata dalla seguente equazione:
@@ -797,7 +803,7 @@ La variabile "Temperatura", in questo preciso caso, non è statisticamente signi
     \caption{Grafico per la visualizzazione della significatività dell'effetto casuale di gruppo $a_j$.}
 \end{figure}
 \subsection{Conlclusioni sui modelli predittivi}
-Tutti i modelli proposti sono in grado di prevedere il coefficiente di perdita con un'accuratezza accettabile: il minimo valore dell'indice di bontà di adattamento è 0.7058, ottenuto con una regolarizzazione di tipo \textit{Lasso}. Le regressioni regolarizzate risentono negativamente di un'eccessiva collinearità della matrice del disegno - come dimostrato empiricamente da Weisberg \cite{Wei}\cite{Wei1} -, e questo viene confermato dal fatto che anche l'$R^2$ prodotto al metodo \textit{Ridge} non sia eccellente: 0.845. Per questa ragione, le tecniche di \textit{shrinkage} sono sconsigliate.\\
+Tutti i modelli proposti sono in grado di prevedere il coefficiente di perdita $\alpha_{140}$ con un'accuratezza accettabile: il minimo valore dell'indice di bontà di adattamento è 0.7058, ottenuto con una regolarizzazione di tipo \textit{Lasso}. Le regressioni regolarizzate risentono negativamente di un'eccessiva collinearità della matrice del disegno - come dimostrato empiricamente da Weisberg \cite{Wei}\cite{Wei1} -, e questo viene confermato dal fatto che anche l'$R^2$ prodotto al metodo \textit{Ridge} non sia eccellente: 0.845. Per questa ragione, le tecniche di \textit{shrinkage} sono sconsigliate.\\
 Il modello migliore ($R^2=0.9508$) per la previsione di $\alpha$ consiste nella regressione lineare classica basato sulla combinazione di alcune variabili di pressione ("Picco Press. (140)", "Media Press.(2300)","Picco Press. (2300)"), temperatura e picco di coppia finale. Segue il modello OLS che include le stesse variabili di quello appena citato, ecceto per quanto riguarda il picco della coppia finale, sostituito dalla media della coppia finale. Pertanto, le regressioni lineari multiple basate sulle misurazioni di pressione in entrambe le fasi si rivelano essere le metodologie più accurate per la descrizione della variabile target. La seconda classe di metodi, in ordine di prestazione, è quella dei modelli multilivello, che, riuscendo a catturare gli effetti randomici propri dei diversi contesti di produzione, ottengono valori di $R^2$ compresi fra un minimo di 0.918 (quando la regressione è basata su grandezze di portata) e un massimo di 0.939 (in corrispondenza delle colonne di pressione). Nell'ambito di tali modelli misti, è interessante nota come quelli basati sulle misurazioni di pressione mostrino sempre un coefficiente ICC molto minore, quindi una struttura gerarchica meno evidente, ma un numero di cluster di produzione sempre maggiore.
 In ogni caso, il grande problema di multicollinearità non ha permesso di utilizzare congiuntamente sia le variabili di portata e pressione che quelle relative alla coppia finale, né di condurre una \textit{feature selection} esplicita, obbligando una dispendiosa serie di tentativi di selezione manuale. 
 %----------------------------------------------------------------------------------------
@@ -806,7 +812,9 @@ L'intero codice, implementato con linguaggi \texttt{Python} e \texttt{R}, è dis
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
-\newpage
+
+\clearpage
+
 \phantomsection
 \bibliographystyle{unsrt}
 \begin{thebibliography}{9}
