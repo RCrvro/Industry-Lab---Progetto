@@ -23,7 +23,7 @@ def out_uni(distr,y):
         return " "
 
 db = pd.read_csv("/Users/riccardocervero/Desktop/Progetto Industry Lab/DbRidotto.csv")
-values=[k for k in db.Coefficiente]    
+values=[k for k in db.Coefficiente_140]    
 
 i=0    
 for message in consumer:
