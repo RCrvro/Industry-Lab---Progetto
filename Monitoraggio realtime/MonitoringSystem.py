@@ -53,7 +53,7 @@ fig2 = go.Figure(dict(
 )
 
 
-fig3 = go.Figure(data=go.Violin(y=db['Coefficiente'], box_visible=True, line_color='#46de00',
+fig3 = go.Figure(data=go.Violin(y=db['Coefficiente_140'], box_visible=True, line_color='#46de00',
                                meanline_visible=True, fillcolor='#46de00', opacity=0.6
                                ),
                  layout= go.Layout(yaxis=dict(title='α values'),template = "plotly_dark"))
