@@ -17,7 +17,7 @@ def col(z,t=Tipo_pompa):
 
 def limitgraph():
   Tipo_pompa=(input("Inserire il tipo di Pompa (DAI o STD): "))
-  c = [float(e) for e in [(input("Inserire coordinate di pressione e coefficiente: "))][0].split(",")]
+  c = [float(e) for e in [(input("Inserire coordinate di pressione e coefficiente (140 rpm): "))][0].split(",")]
   c.append(float(108.36-(c[0]*c[1])))
   c = pd.DataFrame(c).transpose()
   c.columns = ['x','y','z']
@@ -32,7 +32,7 @@ def limitgraph():
   fig.add_trace(go.Scatter3d(x=c.x, y=c.y, z=c.z,mode='markers',marker=dict(color=cl),name="Osservazione"))
   fig.update_layout(scene = dict(
                     xaxis_title='Pressione',
-                    yaxis_title='Coefficiente',
+                    yaxis_title='Coefficiente (140 rpm)',
                     zaxis_title='Portata'),
                     title_text=str("Limite di portata ("+str(Tipo_pompa)+")"), title_x=0.5, title_y=0.95)
   clear_output(wait=True)
